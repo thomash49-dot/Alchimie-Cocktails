@@ -1,0 +1,37 @@
+{
+
+  "name": "Alchimie — Cocktail Lab",
+
+  "short_name": "Alchimie",
+
+  "description": "Laboratoire personnel de création et d'accords de cocktails.",
+
+  "start_url": "./",
+
+  "scope": "./",
+
+  "display": "standalone",
+
+  "orientation": "portrait",
+
+  "background_color": "#f4f4f1",
+
+  "theme_color": "#181817",
+
+  "icons": [
+
+    {
+
+      "src": "./icon.PNG",
+
+      "sizes": "1024x1024",
+
+      "type": "image/png",
+
+      "purpose": "any"
+
+    }
+
+  ]
+
+}
