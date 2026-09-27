@@ -1,0 +1,3779 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+
+  name="viewport"
+
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+
+>
+
+<meta name="theme-color" content="#f5f5f3">
+
+<title>Alchimie — Cocktail Lab</title>
+
+<style>
+
+/* =========================================================
+
+   ALCHIMIE — COCKTAIL LAB
+
+   V1 MINIMALISTE
+
+========================================================= */
+
+:root{
+
+  --bg:#f4f4f1;
+
+  --card:#ffffff;
+
+  --card2:#fafaf8;
+
+  --text:#181817;
+
+  --muted:#777772;
+
+  --muted2:#a3a39d;
+
+  --border:#e4e4df;
+
+  --dark:#181817;
+
+  --dark2:#2b2b29;
+
+  --accent:#b7793d;
+
+  --accent-soft:#f2e8dd;
+
+  --green:#55705c;
+
+  --green-soft:#e8eee9;
+
+  --danger:#a94b45;
+
+  --danger-soft:#f5e8e6;
+
+  --radius:18px;
+
+  --radius-small:12px;
+
+  --shadow:
+
+    0 8px 30px rgba(20,20,18,.06);
+
+}
+
+*{
+
+  box-sizing:border-box;
+
+  -webkit-tap-highlight-color:transparent;
+
+}
+
+html{
+
+  -webkit-text-size-adjust:100%;
+
+  scroll-behavior:smooth;
+
+}
+
+body{
+
+  margin:0;
+
+  background:var(--bg);
+
+  color:var(--text);
+
+  font-family:
+
+    -apple-system,
+
+    BlinkMacSystemFont,
+
+    "SF Pro Display",
+
+    "Segoe UI",
+
+    sans-serif;
+
+}
+
+button,
+
+input,
+
+select,
+
+textarea{
+
+  font:inherit;
+
+}
+
+button{
+
+  cursor:pointer;
+
+}
+
+.app{
+
+  width:min(100%,760px);
+
+  margin:auto;
+
+  min-height:100vh;
+
+}
+
+/* =========================================================
+
+   PAGE
+
+========================================================= */
+
+.page{
+
+  display:none;
+
+  min-height:100vh;
+
+  padding:
+
+    calc(18px + env(safe-area-inset-top))
+
+    16px
+
+    calc(100px + env(safe-area-inset-bottom));
+
+}
+
+.page.active{
+
+  display:block;
+
+}
+
+/* =========================================================
+
+   HEADER
+
+========================================================= */
+
+.topbar{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  margin-bottom:24px;
+
+}
+
+.back{
+
+  width:42px;
+
+  height:42px;
+
+  border:1px solid var(--border);
+
+  border-radius:50%;
+
+  background:var(--card);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:24px;
+
+  color:var(--text);
+
+}
+
+.topbarTitle{
+
+  flex:1;
+
+  font-size:18px;
+
+  font-weight:650;
+
+}
+
+.smallLabel{
+
+  font-size:12px;
+
+  color:var(--muted);
+
+  text-transform:uppercase;
+
+  letter-spacing:1.4px;
+
+}
+
+/* =========================================================
+
+   ACCUEIL
+
+========================================================= */
+
+.homeHeader{
+
+  padding:12px 4px 25px;
+
+}
+
+.logo{
+
+  width:52px;
+
+  height:52px;
+
+  background:var(--dark);
+
+  color:white;
+
+  border-radius:16px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:25px;
+
+  margin-bottom:18px;
+
+}
+
+.homeHeader h1{
+
+  margin:0;
+
+  font-size:35px;
+
+  letter-spacing:-1.4px;
+
+}
+
+.homeHeader p{
+
+  margin:6px 0 0;
+
+  color:var(--muted);
+
+  font-size:15px;
+
+}
+
+/* =========================================================
+
+   HERO
+
+========================================================= */
+
+.hero{
+
+  background:var(--dark);
+
+  color:white;
+
+  border-radius:24px;
+
+  padding:26px;
+
+  margin-bottom:16px;
+
+  box-shadow:var(--shadow);
+
+}
+
+.heroIcon{
+
+  width:48px;
+
+  height:48px;
+
+  border-radius:14px;
+
+  background:rgba(255,255,255,.10);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:24px;
+
+  margin-bottom:30px;
+
+}
+
+.hero h2{
+
+  margin:0 0 8px;
+
+  font-size:28px;
+
+  letter-spacing:-.8px;
+
+}
+
+.hero p{
+
+  margin:0 0 24px;
+
+  color:#c8c8c4;
+
+  line-height:1.45;
+
+}
+
+.heroButton{
+
+  border:0;
+
+  background:white;
+
+  color:var(--dark);
+
+  border-radius:12px;
+
+  padding:13px 18px;
+
+  font-weight:650;
+
+}
+
+/* =========================================================
+
+   DASHBOARD GRID
+
+========================================================= */
+
+.grid{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:12px;
+
+}
+
+.dashboardCard{
+
+  border:1px solid var(--border);
+
+  background:var(--card);
+
+  border-radius:18px;
+
+  padding:18px;
+
+  min-height:150px;
+
+  text-align:left;
+
+  display:flex;
+
+  flex-direction:column;
+
+  box-shadow:var(--shadow);
+
+}
+
+.cardIcon{
+
+  width:42px;
+
+  height:42px;
+
+  border-radius:12px;
+
+  background:var(--card2);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:21px;
+
+  margin-bottom:auto;
+
+}
+
+.dashboardCard strong{
+
+  font-size:16px;
+
+  margin-top:20px;
+
+}
+
+.dashboardCard span{
+
+  color:var(--muted);
+
+  font-size:13px;
+
+  margin-top:4px;
+
+}
+
+/* =========================================================
+
+   TITRES
+
+========================================================= */
+
+.pageTitle{
+
+  margin-bottom:22px;
+
+}
+
+.pageTitle h2{
+
+  margin:0;
+
+  font-size:29px;
+
+  letter-spacing:-.7px;
+
+}
+
+.pageTitle p{
+
+  margin:7px 0 0;
+
+  color:var(--muted);
+
+  line-height:1.45;
+
+}
+
+/* =========================================================
+
+   SEARCH
+
+========================================================= */
+
+.search{
+
+  width:100%;
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:14px;
+
+  padding:14px 16px;
+
+  outline:none;
+
+  color:var(--text);
+
+  margin-bottom:14px;
+
+}
+
+.search:focus{
+
+  border-color:#aaa;
+
+}
+
+/* =========================================================
+
+   CATEGORY CHIPS
+
+========================================================= */
+
+.chips{
+
+  display:flex;
+
+  gap:8px;
+
+  overflow-x:auto;
+
+  padding-bottom:12px;
+
+  scrollbar-width:none;
+
+}
+
+.chips::-webkit-scrollbar{
+
+  display:none;
+
+}
+
+.chip{
+
+  flex:none;
+
+  border:1px solid var(--border);
+
+  border-radius:999px;
+
+  background:var(--card);
+
+  padding:9px 13px;
+
+  font-size:13px;
+
+  color:var(--muted);
+
+}
+
+.chip.active{
+
+  background:var(--dark);
+
+  color:white;
+
+  border-color:var(--dark);
+
+}
+
+/* =========================================================
+
+   INGREDIENTS
+
+========================================================= */
+
+.ingredientList{
+
+  display:grid;
+
+  gap:9px;
+
+}
+
+.ingredient{
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:15px;
+
+  padding:12px;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+}
+
+.ingredientIcon{
+
+  width:48px;
+
+  height:48px;
+
+  flex:none;
+
+  border-radius:13px;
+
+  background:var(--card2);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:23px;
+
+}
+
+.ingredientInfo{
+
+  flex:1;
+
+  min-width:0;
+
+}
+
+.ingredientName{
+
+  font-size:15px;
+
+  font-weight:620;
+
+}
+
+.ingredientMeta{
+
+  margin-top:4px;
+
+  color:var(--muted);
+
+  font-size:12px;
+
+  white-space:nowrap;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+}
+
+.add{
+
+  width:38px;
+
+  height:38px;
+
+  border:1px solid var(--border);
+
+  border-radius:50%;
+
+  background:white;
+
+  font-size:21px;
+
+}
+
+.add.selected{
+
+  background:var(--dark);
+
+  color:white;
+
+  border-color:var(--dark);
+
+}
+
+/* =========================================================
+
+   FIXED ACTION
+
+========================================================= */
+
+.bottomArea{
+
+  position:sticky;
+
+  bottom:12px;
+
+  margin-top:20px;
+
+  padding-top:8px;
+
+}
+
+.primary{
+
+  width:100%;
+
+  min-height:56px;
+
+  border:0;
+
+  border-radius:15px;
+
+  background:var(--dark);
+
+  color:white;
+
+  font-weight:650;
+
+  box-shadow:
+
+    0 10px 25px rgba(20,20,18,.16);
+
+}
+
+.secondary{
+
+  width:100%;
+
+  min-height:52px;
+
+  border:1px solid var(--border);
+
+  border-radius:15px;
+
+  background:white;
+
+  color:var(--text);
+
+  font-weight:600;
+
+}
+
+/* =========================================================
+
+   SELECTION
+
+========================================================= */
+
+.selectionSummary{
+
+  padding:18px;
+
+  background:var(--accent-soft);
+
+  border-radius:17px;
+
+  margin-bottom:15px;
+
+}
+
+.selectionSummary strong{
+
+  display:block;
+
+  margin-bottom:5px;
+
+}
+
+.selectionSummary span{
+
+  color:#76583d;
+
+  font-size:13px;
+
+}
+
+.remove{
+
+  width:36px;
+
+  height:36px;
+
+  border:0;
+
+  border-radius:50%;
+
+  background:var(--card2);
+
+  color:var(--muted);
+
+  font-size:19px;
+
+}
+
+/* =========================================================
+
+   RESULTAT
+
+========================================================= */
+
+.resultHero{
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:22px;
+
+  padding:24px;
+
+  margin-bottom:12px;
+
+  text-align:center;
+
+}
+
+.cocktailIcon{
+
+  width:90px;
+
+  height:90px;
+
+  margin:5px auto 20px;
+
+  border-radius:25px;
+
+  background:var(--accent-soft);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:44px;
+
+}
+
+.resultHero h2{
+
+  margin:0;
+
+  font-size:29px;
+
+}
+
+.resultHero p{
+
+  color:var(--muted);
+
+  margin:7px 0 15px;
+
+}
+
+.profileTags{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  justify-content:center;
+
+  gap:6px;
+
+}
+
+.profileTag{
+
+  padding:6px 10px;
+
+  border-radius:999px;
+
+  background:var(--card2);
+
+  border:1px solid var(--border);
+
+  font-size:12px;
+
+}
+
+/* =========================================================
+
+   INFO GRID
+
+========================================================= */
+
+.infoGrid{
+
+  display:grid;
+
+  grid-template-columns:repeat(3,1fr);
+
+  gap:8px;
+
+  margin-bottom:12px;
+
+}
+
+.infoCard{
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:15px;
+
+  padding:14px 8px;
+
+  text-align:center;
+
+}
+
+.infoCard span{
+
+  display:block;
+
+  color:var(--muted);
+
+  font-size:11px;
+
+  margin-bottom:5px;
+
+}
+
+.infoCard strong{
+
+  font-size:13px;
+
+}
+
+/* =========================================================
+
+   SECTION CARD
+
+========================================================= */
+
+.sectionCard{
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:18px;
+
+  padding:18px;
+
+  margin-bottom:12px;
+
+}
+
+.sectionCard h3{
+
+  margin:0 0 15px;
+
+  font-size:17px;
+
+}
+
+.recipeLine{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:15px;
+
+  padding:10px 0;
+
+  border-bottom:1px solid var(--border);
+
+}
+
+.recipeLine:last-child{
+
+  border-bottom:0;
+
+}
+
+.recipeLine span{
+
+  color:var(--muted);
+
+}
+
+.recipeText{
+
+  color:#555550;
+
+  line-height:1.55;
+
+  font-size:14px;
+
+}
+
+/* =========================================================
+
+   BALANCE
+
+========================================================= */
+
+.balance{
+
+  margin-top:15px;
+
+}
+
+.balanceHeader{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  font-size:13px;
+
+  margin-bottom:8px;
+
+}
+
+.balanceTrack{
+
+  height:7px;
+
+  background:#ededeb;
+
+  border-radius:99px;
+
+  overflow:hidden;
+
+}
+
+.balanceFill{
+
+  height:100%;
+
+  width:85%;
+
+  background:var(--green);
+
+  border-radius:99px;
+
+}
+
+/* =========================================================
+
+   EMPTY
+
+========================================================= */
+
+.empty{
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:20px;
+
+  padding:50px 25px;
+
+  text-align:center;
+
+}
+
+.emptyIcon{
+
+  width:60px;
+
+  height:60px;
+
+  margin:auto auto 15px;
+
+  border-radius:18px;
+
+  background:var(--card2);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:28px;
+
+}
+
+.empty h3{
+
+  margin:0 0 8px;
+
+}
+
+.empty p{
+
+  color:var(--muted);
+
+  line-height:1.5;
+
+}
+
+/* =========================================================
+
+   SAVED RECIPES
+
+========================================================= */
+
+.savedList{
+
+  display:grid;
+
+  gap:10px;
+
+}
+
+.savedRecipe{
+
+  background:var(--card);
+
+  border:1px solid var(--border);
+
+  border-radius:17px;
+
+  padding:15px;
+
+  display:flex;
+
+  gap:12px;
+
+  align-items:center;
+
+}
+
+.savedRecipeIcon{
+
+  width:50px;
+
+  height:50px;
+
+  flex:none;
+
+  border-radius:14px;
+
+  background:var(--accent-soft);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:24px;
+
+}
+
+.savedRecipeInfo{
+
+  flex:1;
+
+}
+
+.savedRecipeInfo strong{
+
+  display:block;
+
+}
+
+.savedRecipeInfo span{
+
+  display:block;
+
+  color:var(--muted);
+
+  font-size:12px;
+
+  margin-top:4px;
+
+}
+
+/* =========================================================
+
+   RESPONSIVE
+
+========================================================= */
+
+@media(max-width:390px){
+
+  .page{
+
+    padding-left:12px;
+
+    padding-right:12px;
+
+  }
+
+  .hero{
+
+    padding:22px;
+
+  }
+
+  .homeHeader h1{
+
+    font-size:31px;
+
+  }
+
+}
+
+@media(min-width:650px){
+
+  .page{
+
+    padding-left:24px;
+
+    padding-right:24px;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- ======================================================
+
+     ACCUEIL
+
+====================================================== -->
+
+<section id="home" class="page active">
+
+  <div class="homeHeader">
+
+    <div class="logo">
+
+      ◇
+
+    </div>
+
+    <h1>Alchimie</h1>
+
+    <p>
+
+      Cocktail Lab
+
+    </p>
+
+  </div>
+
+  <div class="hero">
+
+    <div class="heroIcon">
+
+      ✦
+
+    </div>
+
+    <h2>
+
+      Créer un cocktail
+
+    </h2>
+
+    <p>
+
+      Assemble tes ingrédients.
+
+      Alchimie analyse leurs profils
+
+      et imagine une recette équilibrée.
+
+    </p>
+
+    <button
+
+      class="heroButton"
+
+      onclick="openPage('create')"
+
+    >
+
+      Commencer
+
+    </button>
+
+  </div>
+
+  <div class="grid">
+
+    <button
+
+      class="dashboardCard"
+
+      onclick="surpriseMe()"
+
+    >
+
+      <div class="cardIcon">
+
+        ✨
+
+      </div>
+
+      <strong>
+
+        Inspiration
+
+      </strong>
+
+      <span>
+
+        Laisse Alchimie choisir
+
+      </span>
+
+    </button>
+
+    <button
+
+      class="dashboardCard"
+
+      onclick="openPage('ingredientsPage')"
+
+    >
+
+      <div class="cardIcon">
+
+        ◉
+
+      </div>
+
+      <strong>
+
+        Mes ingrédients
+
+      </strong>
+
+      <span id="ingredientCount">
+
+        0 ingrédients
+
+      </span>
+
+    </button>
+
+    <button
+
+      class="dashboardCard"
+
+      onclick="openPage('recipes')"
+
+    >
+
+      <div class="cardIcon">
+
+        ♡
+
+      </div>
+
+      <strong>
+
+        Mes recettes
+
+      </strong>
+
+      <span id="recipeCount">
+
+        0 créations
+
+      </span>
+
+    </button>
+
+    <button
+
+      class="dashboardCard"
+
+      onclick="openPage('pairings')"
+
+    >
+
+      <div class="cardIcon">
+
+        ◎
+
+      </div>
+
+      <strong>
+
+        Accords
+
+      </strong>
+
+      <span>
+
+        Explorer les saveurs
+
+      </span>
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ======================================================
+
+     CREATION
+
+====================================================== -->
+
+<section id="create" class="page">
+
+  <div class="topbar">
+
+    <button
+
+      class="back"
+
+      onclick="openPage('home')"
+
+    >
+
+      ‹
+
+    </button>
+
+    <div>
+
+      <div class="smallLabel">
+
+        Alchimie
+
+      </div>
+
+      <div class="topbarTitle">
+
+        Créer
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="pageTitle">
+
+    <h2>
+
+      Tes ingrédients
+
+    </h2>
+
+    <p>
+
+      Sélectionne les éléments que tu souhaites
+
+      intégrer à ta création.
+
+    </p>
+
+  </div>
+
+  <input
+
+    id="search"
+
+    class="search"
+
+    placeholder="Rechercher un ingrédient"
+
+    oninput="renderIngredients()"
+
+  >
+
+  <div class="chips">
+
+    <button
+
+      class="chip active"
+
+      onclick="setCategory('Tous',this)"
+
+    >
+
+      Tous
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Alcool',this)"
+
+    >
+
+      Alcools
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Jus',this)"
+
+    >
+
+      Jus
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Sirop',this)"
+
+    >
+
+      Sirops
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Fruit',this)"
+
+    >
+
+      Fruits
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Herbe',this)"
+
+    >
+
+      Herbes
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Épice',this)"
+
+    >
+
+      Épices
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Bitter',this)"
+
+    >
+
+      Bitters
+
+    </button>
+
+    <button
+
+      class="chip"
+
+      onclick="setCategory('Soft',this)"
+
+    >
+
+      Softs
+
+    </button>
+
+  </div>
+
+  <div
+
+    id="ingredientList"
+
+    class="ingredientList"
+
+  ></div>
+
+  <div class="bottomArea">
+
+    <button
+
+      id="selectionButton"
+
+      class="primary"
+
+      onclick="openSelection()"
+
+    >
+
+      Continuer · 0 ingrédient
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ======================================================
+
+     SELECTION
+
+====================================================== -->
+
+<section id="selection" class="page">
+
+  <div class="topbar">
+
+    <button
+
+      class="back"
+
+      onclick="openPage('create')"
+
+    >
+
+      ‹
+
+    </button>
+
+    <div class="topbarTitle">
+
+      Ma sélection
+
+    </div>
+
+  </div>
+
+  <div class="selectionSummary">
+
+    <strong>
+
+      Composition
+
+    </strong>
+
+    <span id="selectionSummaryText">
+
+    </span>
+
+  </div>
+
+  <div
+
+    id="selectionList"
+
+    class="ingredientList"
+
+  ></div>
+
+  <div class="bottomArea">
+
+    <button
+
+      class="primary"
+
+      onclick="generateCocktail()"
+
+    >
+
+      ✦ Générer le cocktail
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ======================================================
+
+     RESULTAT
+
+====================================================== -->
+
+<section id="result" class="page">
+
+  <div class="topbar">
+
+    <button
+
+      class="back"
+
+      onclick="openPage('selection')"
+
+    >
+
+      ‹
+
+    </button>
+
+    <div class="topbarTitle">
+
+      Création
+
+    </div>
+
+  </div>
+
+  <div class="resultHero">
+
+    <div class="cocktailIcon">
+
+      🍸
+
+    </div>
+
+    <h2 id="recipeName">
+
+      Cocktail
+
+    </h2>
+
+    <p>
+
+      Création générée par Alchimie
+
+    </p>
+
+    <div
+
+      id="recipeProfiles"
+
+      class="profileTags"
+
+    ></div>
+
+  </div>
+
+  <div class="infoGrid">
+
+    <div class="infoCard">
+
+      <span>
+
+        MÉTHODE
+
+      </span>
+
+      <strong id="method">
+
+        Shaker
+
+      </strong>
+
+    </div>
+
+    <div class="infoCard">
+
+      <span>
+
+        VERRE
+
+      </span>
+
+      <strong id="glass">
+
+        Coupe
+
+      </strong>
+
+    </div>
+
+    <div class="infoCard">
+
+      <span>
+
+        ÉQUILIBRE
+
+      </span>
+
+      <strong id="score">
+
+        8.5/10
+
+      </strong>
+
+    </div>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Ingrédients
+
+    </h3>
+
+    <div id="recipeIngredients"></div>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Préparation
+
+    </h3>
+
+    <div
+
+      id="preparation"
+
+      class="recipeText"
+
+    ></div>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Analyse
+
+    </h3>
+
+    <div
+
+      id="analysis"
+
+      class="recipeText"
+
+    ></div>
+
+    <div class="balance">
+
+      <div class="balanceHeader">
+
+        <span>
+
+          Équilibre aromatique
+
+        </span>
+
+        <strong id="balancePercent">
+
+          85%
+
+        </strong>
+
+      </div>
+
+      <div class="balanceTrack">
+
+        <div
+
+          id="balanceFill"
+
+          class="balanceFill"
+
+        ></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="bottomArea">
+
+    <button
+
+      class="primary"
+
+      onclick="saveRecipe()"
+
+    >
+
+      ♡ Enregistrer
+
+    </button>
+
+  </div>
+
+</section>
+
+<!-- ======================================================
+
+     RECETTES
+
+====================================================== -->
+
+<section id="recipes" class="page">
+
+  <div class="topbar">
+
+    <button
+
+      class="back"
+
+      onclick="openPage('home')"
+
+    >
+
+      ‹
+
+    </button>
+
+    <div class="topbarTitle">
+
+      Mes recettes
+
+    </div>
+
+  </div>
+
+  <div class="pageTitle">
+
+    <h2>
+
+      Mes créations
+
+    </h2>
+
+    <p>
+
+      Les recettes que tu as décidé de conserver.
+
+    </p>
+
+  </div>
+
+  <div
+
+    id="savedRecipes"
+
+    class="savedList"
+
+  ></div>
+
+</section>
+
+<!-- ======================================================
+
+     INGREDIENTS
+
+====================================================== -->
+
+<section id="ingredientsPage" class="page">
+
+  <div class="topbar">
+
+    <button
+
+      class="back"
+
+      onclick="openPage('home')"
+
+    >
+
+      ‹
+
+    </button>
+
+    <div class="topbarTitle">
+
+      Mes ingrédients
+
+    </div>
+
+  </div>
+
+  <div class="pageTitle">
+
+    <h2>
+
+      Bibliothèque
+
+    </h2>
+
+    <p>
+
+      La base utilisée par Alchimie
+
+      pour imaginer tes cocktails.
+
+    </p>
+
+  </div>
+
+  <div
+
+    id="libraryList"
+
+    class="ingredientList"
+
+  ></div>
+
+</section>
+
+<!-- ======================================================
+
+     ACCORDS
+
+====================================================== -->
+
+<section id="pairings" class="page">
+
+  <div class="topbar">
+
+    <button
+
+      class="back"
+
+      onclick="openPage('home')"
+
+    >
+
+      ‹
+
+    </button>
+
+    <div class="topbarTitle">
+
+      Accords
+
+    </div>
+
+  </div>
+
+  <div class="pageTitle">
+
+    <h2>
+
+      Profils aromatiques
+
+    </h2>
+
+    <p>
+
+      Les familles utilisées pour analyser
+
+      les associations.
+
+    </p>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Frais & acidulés
+
+    </h3>
+
+    <div class="recipeText">
+
+      Agrume · Acide · Frais · Vif
+
+    </div>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Fruités
+
+    </h3>
+
+    <div class="recipeText">
+
+      Fruité · Tropical · Fruits rouges · Fruits mûrs
+
+    </div>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Aromatiques
+
+    </h3>
+
+    <div class="recipeText">
+
+      Floral · Botanique · Herbacé · Épicé
+
+    </div>
+
+  </div>
+
+  <div class="sectionCard">
+
+    <h3>
+
+      Profonds
+
+    </h3>
+
+    <div class="recipeText">
+
+      Boisé · Fumé · Amer · Torréfié · Chaud
+
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+
+<script>
+
+/* =========================================================
+
+   BASE INGREDIENTS
+
+========================================================= */
+
+const ingredients = [
+
+{
+
+ id:"gin",
+
+ name:"Gin",
+
+ category:"Alcool",
+
+ icon:"G",
+
+ profiles:["Botanique","Sec","Floral"]
+
+},
+
+{
+
+ id:"rum",
+
+ name:"Rhum",
+
+ category:"Alcool",
+
+ icon:"R",
+
+ profiles:["Doux","Boisé","Chaud"]
+
+},
+
+{
+
+ id:"vodka",
+
+ name:"Vodka",
+
+ category:"Alcool",
+
+ icon:"V",
+
+ profiles:["Neutre","Sec"]
+
+},
+
+{
+
+ id:"whisky",
+
+ name:"Whisky",
+
+ category:"Alcool",
+
+ icon:"W",
+
+ profiles:["Boisé","Épicé","Profond"]
+
+},
+
+{
+
+ id:"tequila",
+
+ name:"Tequila",
+
+ category:"Alcool",
+
+ icon:"T",
+
+ profiles:["Végétal","Sec","Puissant"]
+
+},
+
+{
+
+ id:"figliqueur",
+
+ name:"Liqueur de figue",
+
+ category:"Alcool",
+
+ icon:"F",
+
+ profiles:["Fruité","Sucré","Profond"]
+
+},
+
+{
+
+ id:"lime",
+
+ name:"Jus de citron vert",
+
+ category:"Jus",
+
+ icon:"L",
+
+ profiles:["Acide","Agrume","Frais"]
+
+},
+
+{
+
+ id:"lemon",
+
+ name:"Jus de citron",
+
+ category:"Jus",
+
+ icon:"C",
+
+ profiles:["Acide","Agrume","Vif"]
+
+},
+
+{
+
+ id:"pineapple",
+
+ name:"Jus d'ananas",
+
+ category:"Jus",
+
+ icon:"A",
+
+ profiles:["Tropical","Fruité","Doux"]
+
+},
+
+{
+
+ id:"cranberry",
+
+ name:"Cranberry",
+
+ category:"Jus",
+
+ icon:"C",
+
+ profiles:["Fruité","Acidulé","Sec"]
+
+},
+
+{
+
+ id:"elderflower",
+
+ name:"Sirop de fleur de sureau",
+
+ category:"Sirop",
+
+ icon:"S",
+
+ profiles:["Floral","Sucré","Délicat"]
+
+},
+
+{
+
+ id:"orgeat",
+
+ name:"Orgeat",
+
+ category:"Sirop",
+
+ icon:"O",
+
+ profiles:["Amande","Doux","Sucré"]
+
+},
+
+{
+
+ id:"grenadine",
+
+ name:"Grenadine",
+
+ category:"Sirop",
+
+ icon:"G",
+
+ profiles:["Fruité","Sucré"]
+
+},
+
+{
+
+ id:"orange",
+
+ name:"Orange",
+
+ category:"Fruit",
+
+ icon:"O",
+
+ profiles:["Agrume","Fruité","Doux"]
+
+},
+
+{
+
+ id:"fig",
+
+ name:"Figue",
+
+ category:"Fruit",
+
+ icon:"F",
+
+ profiles:["Fruité","Doux","Profond"]
+
+},
+
+{
+
+ id:"mint",
+
+ name:"Menthe",
+
+ category:"Herbe",
+
+ icon:"M",
+
+ profiles:["Herbacé","Frais"]
+
+},
+
+{
+
+ id:"basil",
+
+ name:"Basilic",
+
+ category:"Herbe",
+
+ icon:"B",
+
+ profiles:["Herbacé","Aromatique"]
+
+},
+
+{
+
+ id:"pepper",
+
+ name:"Poivre noir",
+
+ category:"Épice",
+
+ icon:"P",
+
+ profiles:["Épicé","Chaud","Boisé"]
+
+},
+
+{
+
+ id:"cinnamon",
+
+ name:"Cannelle",
+
+ category:"Épice",
+
+ icon:"C",
+
+ profiles:["Épicé","Chaud","Doux"]
+
+},
+
+{
+
+ id:"angostura",
+
+ name:"Angostura",
+
+ category:"Bitter",
+
+ icon:"A",
+
+ profiles:["Amer","Épicé","Complexe"]
+
+},
+
+{
+
+ id:"tonic",
+
+ name:"Tonic",
+
+ category:"Soft",
+
+ icon:"T",
+
+ profiles:["Amer","Pétillant","Frais"]
+
+},
+
+{
+
+ id:"gingerbeer",
+
+ name:"Ginger Beer",
+
+ category:"Soft",
+
+ icon:"G",
+
+ profiles:["Épicé","Pétillant","Frais"]
+
+},
+
+{
+
+ id:"soda",
+
+ name:"Eau gazeuse",
+
+ category:"Soft",
+
+ icon:"S",
+
+ profiles:["Neutre","Pétillant","Frais"]
+
+}
+
+];
+
+/* =========================================================
+
+   ETAT
+
+========================================================= */
+
+let selected = [];
+
+let currentCategory = "Tous";
+
+let currentRecipe = null;
+
+/* =========================================================
+
+   NAVIGATION
+
+========================================================= */
+
+function openPage(id){
+
+ document
+
+ .querySelectorAll(".page")
+
+ .forEach(page=>{
+
+   page.classList.remove("active");
+
+ });
+
+ document
+
+ .getElementById(id)
+
+ .classList.add("active");
+
+ window.scrollTo(0,0);
+
+ if(id==="recipes"){
+
+   renderSavedRecipes();
+
+ }
+
+ if(id==="ingredientsPage"){
+
+   renderLibrary();
+
+ }
+
+ updateDashboard();
+
+}
+
+/* =========================================================
+
+   CATEGORIES
+
+========================================================= */
+
+function setCategory(category,button){
+
+ currentCategory=category;
+
+ document
+
+ .querySelectorAll(".chip")
+
+ .forEach(chip=>{
+
+   chip.classList.remove("active");
+
+ });
+
+ button.classList.add("active");
+
+ renderIngredients();
+
+}
+
+/* =========================================================
+
+   INGREDIENTS
+
+========================================================= */
+
+function renderIngredients(){
+
+ const container=
+
+ document.getElementById("ingredientList");
+
+ const search=
+
+ document
+
+ .getElementById("search")
+
+ .value
+
+ .trim()
+
+ .toLowerCase();
+
+ const filtered=
+
+ ingredients.filter(item=>{
+
+   const categoryOK=
+
+   currentCategory==="Tous" ||
+
+   item.category===currentCategory;
+
+   const searchOK=
+
+   item.name
+
+   .toLowerCase()
+
+   .includes(search);
+
+   return categoryOK && searchOK;
+
+ });
+
+ container.innerHTML="";
+
+ filtered.forEach(item=>{
+
+   const active=
+
+   selected.includes(item.id);
+
+   const card=
+
+   document.createElement("div");
+
+   card.className="ingredient";
+
+   card.innerHTML=`
+
+     <div class="ingredientIcon">
+
+       ${item.icon}
+
+     </div>
+
+     <div class="ingredientInfo">
+
+       <div class="ingredientName">
+
+         ${item.name}
+
+       </div>
+
+       <div class="ingredientMeta">
+
+         ${item.profiles.join(" · ")}
+
+       </div>
+
+     </div>
+
+     <button
+
+       class="add ${active ? "selected":""}"
+
+       onclick="toggleIngredient('${item.id}')"
+
+     >
+
+       ${active ? "✓":"+"}
+
+     </button>
+
+   `;
+
+   container.appendChild(card);
+
+ });
+
+ updateSelectionButton();
+
+}
+
+/* =========================================================
+
+   TOGGLE
+
+========================================================= */
+
+function toggleIngredient(id){
+
+ if(selected.includes(id)){
+
+   selected=
+
+   selected.filter(x=>x!==id);
+
+ }else{
+
+   selected.push(id);
+
+ }
+
+ renderIngredients();
+
+}
+
+/* =========================================================
+
+   BOUTON SELECTION
+
+========================================================= */
+
+function updateSelectionButton(){
+
+ const count=selected.length;
+
+ const word=
+
+ count>1
+
+ ? "ingrédients"
+
+ : "ingrédient";
+
+ document
+
+ .getElementById("selectionButton")
+
+ .textContent=
+
+ `Continuer · ${count} ${word}`;
+
+}
+
+/* =========================================================
+
+   SELECTION
+
+========================================================= */
+
+function openSelection(){
+
+ if(selected.length<2){
+
+   alert(
+
+     "Sélectionne au moins deux ingrédients."
+
+   );
+
+   return;
+
+ }
+
+ renderSelection();
+
+ openPage("selection");
+
+}
+
+function renderSelection(){
+
+ const container=
+
+ document.getElementById("selectionList");
+
+ const chosen=
+
+ selected.map(
+
+   id=>ingredients.find(x=>x.id===id)
+
+ );
+
+ document
+
+ .getElementById("selectionSummaryText")
+
+ .textContent=
+
+ `${chosen.length} ingrédients sélectionnés`;
+
+ container.innerHTML="";
+
+ chosen.forEach(item=>{
+
+   const card=
+
+   document.createElement("div");
+
+   card.className="ingredient";
+
+   card.innerHTML=`
+
+     <div class="ingredientIcon">
+
+       ${item.icon}
+
+     </div>
+
+     <div class="ingredientInfo">
+
+       <div class="ingredientName">
+
+         ${item.name}
+
+       </div>
+
+       <div class="ingredientMeta">
+
+         ${item.profiles.join(" · ")}
+
+       </div>
+
+     </div>
+
+     <button
+
+       class="remove"
+
+       onclick="removeIngredient('${item.id}')"
+
+     >
+
+       ×
+
+     </button>
+
+   `;
+
+   container.appendChild(card);
+
+ });
+
+}
+
+function removeIngredient(id){
+
+ selected=
+
+ selected.filter(x=>x!==id);
+
+ renderSelection();
+
+ renderIngredients();
+
+}
+
+/* =========================================================
+
+   GENERATEUR
+
+========================================================= */
+
+function generateCocktail(){
+
+ if(selected.length<2){
+
+   return;
+
+ }
+
+ const chosen=
+
+ selected.map(
+
+   id=>ingredients.find(x=>x.id===id)
+
+ );
+
+ const profiles=[];
+
+ chosen.forEach(item=>{
+
+   item.profiles.forEach(profile=>{
+
+     if(!profiles.includes(profile)){
+
+       profiles.push(profile);
+
+     }
+
+   });
+
+ });
+
+ const names=[
+
+   "Botanical No. 7",
+
+   "Amber",
+
+   "Velvet Fig",
+
+   "North Garden",
+
+   "Copper",
+
+   "Nocturne",
+
+   "Atelier",
+
+   "Wild Bloom",
+
+   "Origin",
+
+   "Black Leaf",
+
+   "Équilibre",
+
+   "N°17"
+
+ ];
+
+ const name=
+
+ names[
+
+   Math.floor(
+
+     Math.random()*names.length
+
+   )
+
+ ];
+
+ const recipeIngredients=
+
+ chosen.map((item,index)=>{
+
+   let amount="1 cl";
+
+   if(item.category==="Alcool"){
+
+     amount=
+
+     index===0
+
+     ? "4 cl"
+
+     : "2 cl";
+
+   }
+
+   if(item.category==="Jus"){
+
+     amount="2 cl";
+
+   }
+
+   if(item.category==="Sirop"){
+
+     amount="1 cl";
+
+   }
+
+   if(item.category==="Fruit"){
+
+     amount="2 morceaux";
+
+   }
+
+   if(item.category==="Herbe"){
+
+     amount="5 feuilles";
+
+   }
+
+   if(item.category==="Épice"){
+
+     amount="1 pincée";
+
+   }
+
+   if(item.category==="Bitter"){
+
+     amount="2 traits";
+
+   }
+
+   if(item.category==="Soft"){
+
+     amount="Compléter";
+
+   }
+
+   return{
+
+     name:item.name,
+
+     amount
+
+   };
+
+ });
+
+ const score=
+
+ calculateBalance(profiles,chosen);
+
+ const method=
+
+ determineMethod(chosen);
+
+ const glass=
+
+ determineGlass(chosen,method);
+
+ currentRecipe={
+
+   name:name,
+
+   profiles:
+
+   profiles.slice(0,4),
+
+   ingredients:
+
+   recipeIngredients,
+
+   method:method,
+
+   glass:glass,
+
+   score:score,
+
+   preparation:
+
+   createPreparation(method),
+
+   analysis:
+
+   createAnalysis(profiles)
+
+ };
+
+ renderRecipe();
+
+ openPage("result");
+
+}
+
+/* =========================================================
+
+   SCORE
+
+========================================================= */
+
+function calculateBalance(profiles,chosen){
+
+ let score=72;
+
+ if(
+
+   profiles.includes("Acide") ||
+
+   profiles.includes("Acidulé")
+
+ ){
+
+   score+=5;
+
+ }
+
+ if(
+
+   profiles.includes("Sucré") ||
+
+   profiles.includes("Doux")
+
+ ){
+
+   score+=4;
+
+ }
+
+ if(
+
+   profiles.includes("Frais")
+
+ ){
+
+   score+=3;
+
+ }
+
+ if(
+
+   profiles.includes("Amer")
+
+ ){
+
+   score+=2;
+
+ }
+
+ if(
+
+   profiles.includes("Épicé")
+
+ ){
+
+   score+=2;
+
+ }
+
+ if(chosen.length>=3){
+
+   score+=3;
+
+ }
+
+ score=
+
+ Math.min(score,94);
+
+ return score;
+
+}
+
+/* =========================================================
+
+   METHODE
+
+========================================================= */
+
+function determineMethod(chosen){
+
+ const hasJuice=
+
+ chosen.some(
+
+   x=>x.category==="Jus"
+
+ );
+
+ const hasFruit=
+
+ chosen.some(
+
+   x=>x.category==="Fruit"
+
+ );
+
+ if(hasJuice || hasFruit){
+
+   return "Shaker";
+
+ }
+
+ const hasSoft=
+
+ chosen.some(
+
+   x=>x.category==="Soft"
+
+ );
+
+ if(hasSoft){
+
+   return "Build";
+
+ }
+
+ return "Stir";
+
+}
+
+/* =========================================================
+
+   VERRE
+
+========================================================= */
+
+function determineGlass(chosen,method){
+
+ const hasSoft=
+
+ chosen.some(
+
+   x=>x.category==="Soft"
+
+ );
+
+ if(hasSoft){
+
+   return "Highball";
+
+ }
+
+ if(method==="Stir"){
+
+   return "Rocks";
+
+ }
+
+ return "Coupe";
+
+}
+
+/* =========================================================
+
+   PREPARATION
+
+========================================================= */
+
+function createPreparation(method){
+
+ if(method==="Shaker"){
+
+   return(
+
+     "Ajouter les ingrédients dans un shaker rempli de glace. "
+
+     +
+
+     "Shaker énergiquement pendant environ 10 secondes. "
+
+     +
+
+     "Filtrer dans un verre préalablement rafraîchi."
+
+   );
+
+ }
+
+ if(method==="Build"){
+
+   return(
+
+     "Verser les ingrédients directement dans le verre sur glace. "
+
+     +
+
+     "Mélanger délicatement puis compléter avec le soft."
+
+   );
+
+ }
+
+ return(
+
+   "Verser les ingrédients dans un verre à mélange rempli de glace. "
+
+   +
+
+   "Remuer jusqu'à obtenir une dilution suffisante puis filtrer."
+
+ );
+
+}
+
+/* =========================================================
+
+   ANALYSE
+
+========================================================= */
+
+function createAnalysis(profiles){
+
+ if(
+
+   profiles.includes("Sucré") &&
+
+   (
+
+     profiles.includes("Acide") ||
+
+     profiles.includes("Acidulé")
+
+   )
+
+ ){
+
+   return(
+
+     "La composition présente une structure équilibrée "
+
+     +
+
+     "entre douceur et acidité. "
+
+     +
+
+     "Les éléments aromatiques peuvent ensuite apporter "
+
+     +
+
+     "de la profondeur sans déséquilibrer la recette."
+
+   );
+
+ }
+
+ if(
+
+   profiles.includes("Épicé")
+
+ ){
+
+   return(
+
+     "Le profil épicé apporte de la longueur au cocktail. "
+
+     +
+
+     "Il doit rester secondaire afin de ne pas masquer "
+
+     +
+
+     "les ingrédients principaux."
+
+   );
+
+ }
+
+ if(
+
+   profiles.includes("Floral")
+
+ ){
+
+   return(
+
+     "Le profil floral apporte de la finesse. "
+
+     +
+
+     "Une acidité légère peut aider à conserver "
+
+     +
+
+     "une finale fraîche."
+
+   );
+
+ }
+
+ return(
+
+   "La combinaison possède plusieurs familles aromatiques compatibles. "
+
+   +
+
+   "Alchimie construit la recette autour de l'ingrédient principal "
+
+   +
+
+   "et adapte les autres éléments pour créer une structure cohérente."
+
+ );
+
+}
+
+/* =========================================================
+
+   RENDER RESULT
+
+========================================================= */
+
+function renderRecipe(){
+
+ if(!currentRecipe){
+
+   return;
+
+ }
+
+ document
+
+ .getElementById("recipeName")
+
+ .textContent=
+
+ currentRecipe.name;
+
+ document
+
+ .getElementById("recipeProfiles")
+
+ .innerHTML=
+
+ currentRecipe.profiles
+
+ .map(
+
+   profile=>
+
+   `<span class="profileTag">${profile}</span>`
+
+ )
+
+ .join("");
+
+ document
+
+ .getElementById("method")
+
+ .textContent=
+
+ currentRecipe.method;
+
+ document
+
+ .getElementById("glass")
+
+ .textContent=
+
+ currentRecipe.glass;
+
+ document
+
+ .getElementById("score")
+
+ .textContent=
+
+ (currentRecipe.score/10).toFixed(1)+"/10";
+
+ document
+
+ .getElementById("balancePercent")
+
+ .textContent=
+
+ currentRecipe.score+"%";
+
+ document
+
+ .getElementById("balanceFill")
+
+ .style.width=
+
+ currentRecipe.score+"%";
+
+ document
+
+ .getElementById("recipeIngredients")
+
+ .innerHTML=
+
+ currentRecipe.ingredients
+
+ .map(item=>`
+
+   <div class="recipeLine">
+
+     <span>
+
+       ${item.name}
+
+     </span>
+
+     <strong>
+
+       ${item.amount}
+
+     </strong>
+
+   </div>
+
+ `)
+
+ .join("");
+
+ document
+
+ .getElementById("preparation")
+
+ .textContent=
+
+ currentRecipe.preparation;
+
+ document
+
+ .getElementById("analysis")
+
+ .textContent=
+
+ currentRecipe.analysis;
+
+}
+
+/* =========================================================
+
+   SAUVEGARDE
+
+========================================================= */
+
+function saveRecipe(){
+
+ if(!currentRecipe){
+
+   return;
+
+ }
+
+ const recipes=
+
+ JSON.parse(
+
+   localStorage.getItem("alchimie_recipes")
+
+   ||
+
+   "[]"
+
+ );
+
+ recipes.unshift({
+
+   ...currentRecipe,
+
+   id:
+
+   Date.now(),
+
+   createdAt:
+
+   new Date().toISOString()
+
+ });
+
+ localStorage.setItem(
+
+   "alchimie_recipes",
+
+   JSON.stringify(recipes)
+
+ );
+
+ updateDashboard();
+
+ alert(
+
+   "Recette enregistrée."
+
+ );
+
+}
+
+/* =========================================================
+
+   RECETTES ENREGISTREES
+
+========================================================= */
+
+function renderSavedRecipes(){
+
+ const container=
+
+ document.getElementById("savedRecipes");
+
+ const recipes=
+
+ JSON.parse(
+
+   localStorage.getItem("alchimie_recipes")
+
+   ||
+
+   "[]"
+
+ );
+
+ if(recipes.length===0){
+
+   container.innerHTML=`
+
+     <div class="empty">
+
+       <div class="emptyIcon">
+
+         ♡
+
+       </div>
+
+       <h3>
+
+         Aucune recette
+
+       </h3>
+
+       <p>
+
+         Les cocktails que tu décideras
+
+         de conserver apparaîtront ici.
+
+       </p>
+
+     </div>
+
+   `;
+
+   return;
+
+ }
+
+ container.innerHTML=
+
+ recipes
+
+ .map(recipe=>`
+
+   <div class="savedRecipe">
+
+     <div class="savedRecipeIcon">
+
+       🍸
+
+     </div>
+
+     <div class="savedRecipeInfo">
+
+       <strong>
+
+         ${recipe.name}
+
+       </strong>
+
+       <span>
+
+         ${recipe.profiles.join(" · ")}
+
+       </span>
+
+     </div>
+
+     <strong>
+
+       ${(recipe.score/10).toFixed(1)}
+
+     </strong>
+
+   </div>
+
+ `)
+
+ .join("");
+
+}
+
+/* =========================================================
+
+   LIBRARY
+
+========================================================= */
+
+function renderLibrary(){
+
+ const container=
+
+ document.getElementById("libraryList");
+
+ container.innerHTML=
+
+ ingredients
+
+ .map(item=>`
+
+   <div class="ingredient">
+
+     <div class="ingredientIcon">
+
+       ${item.icon}
+
+     </div>
+
+     <div class="ingredientInfo">
+
+       <div class="ingredientName">
+
+         ${item.name}
+
+       </div>
+
+       <div class="ingredientMeta">
+
+         ${item.category}
+
+         ·
+
+         ${item.profiles.join(" · ")}
+
+       </div>
+
+     </div>
+
+   </div>
+
+ `)
+
+ .join("");
+
+}
+
+/* =========================================================
+
+   INSPIRATION
+
+========================================================= */
+
+function surpriseMe(){
+
+ const alcohols=
+
+ ingredients.filter(
+
+   x=>x.category==="Alcool"
+
+ );
+
+ const juices=
+
+ ingredients.filter(
+
+   x=>x.category==="Jus"
+
+ );
+
+ const extras=
+
+ ingredients.filter(
+
+   x=>
+
+   x.category==="Sirop"
+
+   ||
+
+   x.category==="Herbe"
+
+   ||
+
+   x.category==="Épice"
+
+   ||
+
+   x.category==="Bitter"
+
+ );
+
+ const random=
+
+ array=>
+
+ array[
+
+   Math.floor(
+
+     Math.random()*array.length
+
+   )
+
+ ];
+
+ selected=[
+
+   random(alcohols).id,
+
+   random(juices).id,
+
+   random(extras).id
+
+ ];
+
+ generateCocktail();
+
+}
+
+/* =========================================================
+
+   DASHBOARD
+
+========================================================= */
+
+function updateDashboard(){
+
+ const recipes=
+
+ JSON.parse(
+
+   localStorage.getItem("alchimie_recipes")
+
+   ||
+
+   "[]"
+
+ );
+
+ document
+
+ .getElementById("ingredientCount")
+
+ .textContent=
+
+ `${ingredients.length} ingrédients`;
+
+ document
+
+ .getElementById("recipeCount")
+
+ .textContent=
+
+ `${recipes.length} création${recipes.length>1?"s":""}`;
+
+}
+
+/* =========================================================
+
+   INIT
+
+========================================================= */
+
+renderIngredients();
+
+updateDashboard();
+
+</script>
+
+</body>
+
+</html>
