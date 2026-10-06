@@ -1425,3 +1425,3083 @@ summary{
     </p>
 
     <label for="endpoint">Adresse du service sécurisé</label>
+
+    <input
+
+      id="endpoint"
+
+      class="field"
+
+      type="url"
+
+      placeholder="https://alchimie-api.…workers.dev"
+
+    >
+
+    <label for="accessToken">Code d’accès personnel</label>
+
+    <input
+
+      id="accessToken"
+
+      class="field"
+
+      type="password"
+
+      autocomplete="off"
+
+      placeholder="Code défini sur le service"
+
+    >
+
+    <p class="muted">
+
+      Le code est gardé uniquement pendant cette session.
+
+      Ne saisis pas de clé OpenAI ici.
+
+    </p>
+
+    <button class="primary" onclick="saveSettings()">
+
+      Enregistrer la connexion
+
+    </button>
+
+    <button class="secondary" onclick="disconnect()">
+
+      Déconnecter cette session
+
+    </button>
+
+  </div>
+
+  <div class="section">
+
+    <h3>Sauvegarder mes données</h3>
+
+    <button class="secondary" onclick="exportData()">
+
+      Exporter ingrédients, accords & recherches
+
+    </button>
+
+    <label for="importFile">
+
+      Restaurer une sauvegarde Alchimie
+
+    </label>
+
+    <input
+
+      id="importFile"
+
+      type="file"
+
+      accept=".json,application/json"
+
+      onchange="importData(this)"
+
+    >
+
+    <p class="muted">
+
+      La restauration remplace les données de cet appareil après confirmation.
+
+    </p>
+
+  </div>
+
+</section>
+
+</main>
+
+<!-- MODALE INGREDIENT -->
+
+<div
+
+  id="ingredientModal"
+
+  class="modal"
+
+  role="dialog"
+
+  aria-modal="true"
+
+  aria-labelledby="modalTitle"
+
+>
+
+  <div class="modalbox">
+
+    <div class="row">
+
+      <div>
+
+        <h2 id="modalTitle">Nouvel ingrédient</h2>
+
+      </div>
+
+      <button
+
+        class="round"
+
+        aria-label="Fermer"
+
+        onclick="closeIngredientModal()"
+
+      >×</button>
+
+    </div>
+
+    <label for="ingredientName">Nom</label>
+
+    <input
+
+      id="ingredientName"
+
+      class="field"
+
+      maxlength="120"
+
+    >
+
+    <label for="ingredientCategory">Catégorie</label>
+
+    <input
+
+      id="ingredientCategory"
+
+      class="field"
+
+      list="categoryOptions"
+
+      placeholder="Ex. Spiritueux"
+
+    >
+
+    <datalist id="categoryOptions"></datalist>
+
+    <label>Profils aromatiques</label>
+
+    <div id="profilePicker" class="chips"></div>
+
+    <div id="sliders"></div>
+
+    <label>Accords connus (tes observations)</label>
+
+    <div id="pairingPicker" class="pick"></div>
+
+    <button class="primary" onclick="saveIngredient()">
+
+      Enregistrer
+
+    </button>
+
+    <button
+
+      id="deleteIngredientBtn"
+
+      class="danger"
+
+      onclick="deleteIngredient()"
+
+    >
+
+      Supprimer l’ingrédient
+
+    </button>
+
+  </div>
+
+</div>
+
+<div id="toast" role="status"></div>
+
+<script>
+
+/* =========================
+
+   PROFILS ET ACCORDS LOCAUX
+
+========================= */
+
+const PROFILES=[
+
+  'Fruité','Agrume','Tropical','Floral','Botanique',
+
+  'Herbacé','Végétal','Épicé','Boisé','Fumé',
+
+  'Frais','Doux','Sec','Amer','Torréfié',
+
+  'Noisette','Amande','Vanillé','Crémeux',
+
+  'Pétillant','Complexe'
+
+];
+
+const COMPLEMENTS={
+
+  'Fruité':['Agrume','Frais','Floral','Épicé','Herbacé','Crémeux'],
+
+  'Agrume':['Botanique','Fruité','Herbacé','Floral','Frais','Épicé'],
+
+  'Tropical':['Agrume','Épicé','Frais','Herbacé','Crémeux'],
+
+  'Floral':['Agrume','Fruité','Botanique','Frais'],
+
+  'Botanique':['Agrume','Herbacé','Floral','Frais'],
+
+  'Herbacé':['Agrume','Fruité','Botanique','Frais'],
+
+  'Végétal':['Agrume','Herbacé','Frais','Épicé'],
+
+  'Épicé':['Fruité','Boisé','Tropical','Agrume','Vanillé'],
+
+  'Boisé':['Épicé','Fruité','Fumé','Vanillé','Torréfié'],
+
+  'Fumé':['Boisé','Épicé','Agrume','Doux'],
+
+  'Frais':['Agrume','Herbacé','Fruité','Floral'],
+
+  'Amer':['Agrume','Fruité','Doux','Vanillé'],
+
+  'Torréfié':['Vanillé','Noisette','Boisé','Crémeux'],
+
+  'Noisette':['Torréfié','Vanillé','Fruité','Crémeux'],
+
+  'Amande':['Fruité','Agrume','Vanillé','Crémeux'],
+
+  'Vanillé':['Boisé','Torréfié','Fruité','Épicé','Crémeux'],
+
+  'Crémeux':['Fruité','Tropical','Vanillé','Torréfié','Noisette']
+
+};
+
+/* =========================
+
+   BIBLIOTHEQUE INITIALE
+
+========================= */
+
+const DEFAULTS=[
+
+  ['lemon','Citron','Fruit',['Agrume','Frais'],0,5,0,4,
+
+    ['raspberry','basil','mint','ginger']],
+
+  ['lime','Citron vert','Fruit',['Agrume','Frais'],0,5,0,4,
+
+    ['pineapple','mint','ginger']],
+
+  ['raspberry','Framboise','Fruit',['Fruité','Frais'],3,3,0,3,
+
+    ['lemon','basil','vanilla','mint']],
+
+  ['strawberry','Fraise','Fruit',['Fruité','Doux'],4,2,0,3,
+
+    ['basil','vanilla','lemon','mint']],
+
+  ['pineapple','Ananas','Fruit',['Tropical','Fruité'],4,3,0,4,
+
+    ['lime','ginger','mint','coconut']],
+
+  ['apple','Pomme','Fruit',['Fruité','Frais'],3,2,0,2,
+
+    ['cinnamon','lemon','ginger']],
+
+  ['pear','Poire','Fruit',['Fruité','Floral','Doux'],4,1,0,2,
+
+    ['vanilla','lemon','cinnamon']],
+
+  ['orange','Orange','Fruit',['Agrume','Fruité'],3,3,1,3,
+
+    ['vanilla','cinnamon','chocolate']],
+
+  ['mint','Menthe','Herbe',['Herbacé','Frais'],0,0,0,4,
+
+    ['lime','raspberry','pineapple','strawberry']],
+
+  ['basil','Basilic','Herbe',['Herbacé','Végétal'],0,0,1,4,
+
+    ['raspberry','strawberry','lemon']],
+
+  ['ginger','Gingembre','Épice',['Épicé','Frais'],0,0,1,5,
+
+    ['lime','pineapple','apple','lemon']],
+
+  ['pepper','Poivre noir','Épice',['Épicé','Boisé'],0,0,1,5,
+
+    ['strawberry','pineapple','lemon']],
+
+  ['cinnamon','Cannelle','Épice',['Épicé','Boisé','Doux'],1,0,0,5,
+
+    ['apple','pear','orange','vanilla']],
+
+  ['vanilla','Vanille','Autre',['Vanillé','Doux'],3,0,0,4,
+
+    ['raspberry','strawberry','pear','coffee','chocolate']],
+
+  ['coffee','Café','Café',['Torréfié','Amer'],0,1,5,5,
+
+    ['vanilla','chocolate','hazelnut']],
+
+  ['chocolate','Chocolat','Chocolat',['Torréfié','Doux','Crémeux'],4,0,2,5,
+
+    ['coffee','orange','vanilla','hazelnut']],
+
+  ['hazelnut','Noisette','Autre',['Noisette','Torréfié'],1,0,0,4,
+
+    ['coffee','chocolate','vanilla']],
+
+  ['coconut','Noix de coco','Fruit',['Tropical','Crémeux','Doux'],3,0,0,3,
+
+    ['pineapple','lime','vanilla']]
+
+].map(
+
+  ([id,name,category,profiles,sweet,acid,bitter,intensity,pairs])=>({
+
+    id,name,category,profiles,sweet,acid,bitter,intensity,pairs
+
+  })
+
+);
+
+/* =========================
+
+   UTILITAIRES ET STOCKAGE
+
+========================= */
+
+const $=id=>document.getElementById(id);
+
+const clone=x=>JSON.parse(JSON.stringify(x));
+
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({
+
+  '&':'&amp;',
+
+  '<':'&lt;',
+
+  '>':'&gt;',
+
+  '"':'&quot;',
+
+  "'":'&#039;'
+
+}[c]));
+
+function readStore(key,fallback){
+
+  try{
+
+    const v=JSON.parse(localStorage.getItem(key));
+
+    return Array.isArray(v)?v:clone(fallback);
+
+  }catch{
+
+    return clone(fallback);
+
+  }
+
+}
+
+function writeStore(key,value){
+
+  try{
+
+    localStorage.setItem(key,JSON.stringify(value));
+
+    return true;
+
+  }catch{
+
+    toast(
+
+      'Sauvegarde impossible : stockage plein ou indisponible. Exporte tes données.'
+
+    );
+
+    return false;
+
+  }
+
+}
+
+function validIngredient(i){
+
+  return i
+
+    && typeof i.id==='string'
+
+    && i.id.length<150
+
+    && typeof i.name==='string'
+
+    && i.name.trim()
+
+    && i.name.length<=120
+
+    && typeof i.category==='string'
+
+    && i.category.length<=80
+
+    && Array.isArray(i.profiles)
+
+    && i.profiles.every(p=>PROFILES.includes(p))
+
+    && Array.isArray(i.pairs)
+
+    && i.pairs.every(p=>typeof p==='string')
+
+    && ['sweet','acid','bitter','intensity'].every(
+
+      k=>Number.isFinite(i[k])&&i[k]>=0&&i[k]<=5
+
+    )
+
+    && i.intensity>=1;
+
+}
+
+/* =========================
+
+   ETAT
+
+========================= */
+
+let ingredients=readStore(
+
+  'alchimie_ingredients_v2',
+
+  DEFAULTS
+
+).filter(validIngredient);
+
+let selected=[];
+
+let currentCategory='Tous';
+
+let editingIngredientId=null;
+
+let selectedProfiles=[];
+
+let currentAnalysis=null;
+
+let wheelIngredientId=null;
+
+let wheelComparedId=null;
+
+let webResult=null;
+
+let requestController=null;
+
+let modalFocus=null;
+
+let toastTimer;
+
+let webWheelPage=0;
+
+let webPairIndex=0;
+
+let pendingWheelSearch=false;
+
+let endpoint='';
+
+try{
+
+  endpoint=localStorage.getItem('alchimie_endpoint_v3')||'';
+
+}catch{}
+
+let sessionToken='';
+
+function toast(t){
+
+  $('toast').textContent=t;
+
+  $('toast').style.display='block';
+
+  clearTimeout(toastTimer);
+
+  toastTimer=setTimeout(()=>{
+
+    $('toast').style.display='none';
+
+  },4500);
+
+}
+
+function getSaved(){
+
+  return readStore('alchimie_pairings_v1',[]);
+
+}
+
+function getWebSaved(){
+
+  return readStore('alchimie_web_v3',[]);
+
+}
+
+function updateCounts(){
+
+  $('ingredientCount').textContent=
+
+    ingredients.length+' ingrédients';
+
+  $('savedCount').textContent=
+
+    getSaved().length+' accords · '+
+
+    getWebSaved().length+' recherches';
+
+  $('connectionBadge').textContent=
+
+    endpoint&&sessionToken
+
+      ?'Service configuré · connexion à vérifier'
+
+      :'Recherche à connecter';
+
+}
+
+/* =========================
+
+   NAVIGATION
+
+========================= */
+
+function openPage(id){
+
+  document.querySelectorAll('.page').forEach(p=>{
+
+    p.classList.remove('active');
+
+  });
+
+  $(id).classList.add('active');
+
+  window.scrollTo(0,0);
+
+  if(id==='create'){
+
+    renderCategories();
+
+    renderIngredients();
+
+  }
+
+  if(id==='ingredientsPage'){
+
+    renderLibrary();
+
+  }
+
+  if(id==='savedPage'){
+
+    renderSaved();
+
+  }
+
+  if(id==='pairings'){
+
+    renderPairingWheel();
+
+  }
+
+  if(id==='settings'){
+
+    $('endpoint').value=endpoint;
+
+    $('accessToken').value=sessionToken;
+
+  }
+
+  if(id==='online'){
+
+    updateOnlineStatus();
+
+  }
+
+  updateCounts();
+
+}
+
+/* =========================
+
+   CATEGORIES ET SELECTION
+
+========================= */
+
+function categories(){
+
+  return ['Tous',...new Set(ingredients.map(i=>i.category))];
+
+}
+
+function renderCategories(){
+
+  $('categoryChips').replaceChildren();
+
+  categories().forEach(c=>{
+
+    const b=document.createElement('button');
+
+    b.className='chip'+(c===currentCategory?' active':'');
+
+    b.textContent=c;
+
+    b.onclick=()=>{
+
+      currentCategory=c;
+
+      renderCategories();
+
+      renderIngredients();
+
+    };
+
+    $('categoryChips').append(b);
+
+  });
+
+}
+
+function itemRow(i,action,symbol){
+
+  const d=document.createElement('div');
+
+  d.className='item';
+
+  d.innerHTML=
+
+    '<div><strong>'+esc(i.name)+'</strong>'+
+
+    '<small>'+esc(i.category)+' · '+
+
+    esc(i.profiles.join(' · '))+'</small></div>';
+
+  const b=document.createElement('button');
+
+  b.className='round';
+
+  b.textContent=symbol;
+
+  b.setAttribute(
+
+    'aria-label',
+
+    (symbol==='•••'?'Modifier ':'Sélectionner ')+i.name
+
+  );
+
+  b.onclick=action;
+
+  d.append(b);
+
+  return d;
+
+}
+
+function renderIngredients(){
+
+  const q=$('search').value.toLocaleLowerCase('fr');
+
+  $('ingredientList').replaceChildren();
+
+  ingredients.filter(i=>
+
+    (currentCategory==='Tous'||i.category===currentCategory)
+
+    && i.name.toLocaleLowerCase('fr').includes(q)
+
+  ).forEach(i=>{
+
+    $('ingredientList').append(
+
+      itemRow(
+
+        i,
+
+        ()=>toggleIngredient(i.id),
+
+        selected.includes(i.id)?'✓':'+'
+
+      )
+
+    );
+
+  });
+
+  if(!$('ingredientList').children.length){
+
+    $('ingredientList').innerHTML=
+
+      '<div class="empty">Aucun ingrédient.</div>';
+
+  }
+
+  $('selectionButton').textContent=
+
+    'Analyser · '+selected.length+' sélectionné(s)';
+
+}
+
+function toggleIngredient(id){
+
+  selected=selected.includes(id)
+
+    ?selected.filter(x=>x!==id)
+
+    :[...selected,id];
+
+  renderIngredients();
+
+}
+
+/* =========================
+
+   SCORES LOCAUX
+
+========================= */
+
+function pairScore(a,b){
+
+  let score=38;
+
+  if(a.pairs.includes(b.id)||b.pairs.includes(a.id)){
+
+    score+=28;
+
+  }
+
+  let n=0;
+
+  a.profiles.forEach(p=>{
+
+    b.profiles.forEach(q=>{
+
+      if(
+
+        (COMPLEMENTS[p]||[]).includes(q)
+
+        ||(COMPLEMENTS[q]||[]).includes(p)
+
+      ){
+
+        n++;
+
+      }
+
+    });
+
+  });
+
+  score+=Math.min(24,n*6);
+
+  score+=Math.min(
+
+    8,
+
+    a.profiles.filter(p=>b.profiles.includes(p)).length*3
+
+  );
+
+  if(
+
+    (a.acid>=3&&b.sweet>=3)
+
+    ||(b.acid>=3&&a.sweet>=3)
+
+  ){
+
+    score+=8;
+
+  }
+
+  if(
+
+    (a.bitter>=2&&b.sweet>=3)
+
+    ||(b.bitter>=2&&a.sweet>=3)
+
+  ){
+
+    score+=5;
+
+  }
+
+  score-=Math.max(
+
+    0,
+
+    Math.abs(a.intensity-b.intensity)-2
+
+  )*3;
+
+  return Math.max(20,Math.min(100,Math.round(score)));
+
+}
+
+function groupScore(list){
+
+  let t=0;
+
+  let n=0;
+
+  for(let a=0;a<list.length;a++){
+
+    for(let b=a+1;b<list.length;b++){
+
+      t+=pairScore(list[a],list[b]);
+
+      n++;
+
+    }
+
+  }
+
+  return n?Math.round(t/n):50;
+
+}
+
+function level(s){
+
+  return s>=90?'Excellent'
+
+    :s>=78?'Très bon'
+
+    :s>=65?'Bon'
+
+    :'Audacieux';
+
+}
+
+function explainPair(a,b){
+
+  let r=[];
+
+  if(a.pairs.includes(b.id)||b.pairs.includes(a.id)){
+
+    r.push('Accord enregistré dans ta bibliothèque.');
+
+  }
+
+  const common=a.profiles.filter(
+
+    p=>b.profiles.includes(p)
+
+  );
+
+  if(common.length){
+
+    r.push('Profil partagé : '+common.join(', ')+'.');
+
+  }
+
+  let c=[];
+
+  a.profiles.forEach(p=>{
+
+    b.profiles.forEach(q=>{
+
+      if(
+
+        (COMPLEMENTS[p]||[]).includes(q)
+
+        ||(COMPLEMENTS[q]||[]).includes(p)
+
+      ){
+
+        c.push(p+' ↔ '+q);
+
+      }
+
+    });
+
+  });
+
+  if(c.length){
+
+    r.push(
+
+      'Complémentarité supposée : '+
+
+      [...new Set(c)].slice(0,3).join(', ')+'.'
+
+    );
+
+  }
+
+  if(
+
+    (a.acid>=3&&b.sweet>=3)
+
+    ||(b.acid>=3&&a.sweet>=3)
+
+  ){
+
+    r.push(
+
+      'Le contraste acidité/douceur peut aider, selon les quantités.'
+
+    );
+
+  }
+
+  if(Math.abs(a.intensity-b.intensity)>2){
+
+    r.push(
+
+      'L’ingrédient le plus intense peut dominer : dose-le progressivement.'
+
+    );
+
+  }
+
+  return r.length
+
+    ?r
+
+    :['Association expérimentale à tester.'];
+
+}
+
+/* =========================
+
+   ANALYSE LOCALE
+
+========================= */
+
+function analyseSelection(){
+
+  const list=selected.map(
+
+    id=>ingredients.find(i=>i.id===id)
+
+  ).filter(Boolean);
+
+  if(list.length<2){
+
+    return toast('Sélectionne au moins deux ingrédients.');
+
+  }
+
+  const score=groupScore(list);
+
+  currentAnalysis={
+
+    id:'pair_'+crypto.randomUUID(),
+
+    ingredientIds:list.map(i=>i.id),
+
+    names:list.map(i=>i.name),
+
+    profiles:[...new Set(list.flatMap(i=>i.profiles))],
+
+    score,
+
+    date:new Date().toLocaleDateString('fr-BE')
+
+  };
+
+  $('resultNames').textContent=
+
+    currentAnalysis.names.join(' + ');
+
+  $('resultProfiles').innerHTML=
+
+    currentAnalysis.profiles.map(p=>
+
+      '<span class="tag">'+esc(p)+'</span>'
+
+    ).join('');
+
+  $('resultScore').textContent=score;
+
+  $('resultLevel').textContent=level(score);
+
+  $('scoreFill').style.width=score+'%';
+
+  $('balanceText').textContent=
+
+    'Les intensités vont de '+
+
+    Math.min(...list.map(i=>i.intensity))+
+
+    ' à '+
+
+    Math.max(...list.map(i=>i.intensity))+
+
+    '/5. L’équilibre final dépend des proportions, de la dilution '+
+
+    'et de la forme de chaque ingrédient.';
+
+  let reasons=[];
+
+  for(let a=0;a<list.length;a++){
+
+    for(let b=a+1;b<list.length;b++){
+
+      reasons.push(
+
+        ...explainPair(list[a],list[b])
+
+          .slice(0,2)
+
+          .map(r=>
+
+            list[a].name+' + '+list[b].name+' : '+r
+
+          )
+
+      );
+
+    }
+
+  }
+
+  $('reasons').innerHTML=
+
+    reasons.slice(0,8).map(r=>
+
+      '<div class="reason">'+esc(r)+'</div>'
+
+    ).join('');
+
+  const suggestions=ingredients
+
+    .filter(i=>!selected.includes(i.id))
+
+    .map(i=>({
+
+      i,
+
+      s:Math.round(
+
+        list.reduce((t,x)=>t+pairScore(i,x),0)/list.length
+
+      )
+
+    }))
+
+    .sort((a,b)=>b.s-a.s)
+
+    .slice(0,5);
+
+  $('suggestions').replaceChildren();
+
+  suggestions.forEach(({i,s})=>{
+
+    const row=itemRow(
+
+      i,
+
+      ()=>{
+
+        selected.push(i.id);
+
+        analyseSelection();
+
+      },
+
+      '+'
+
+    );
+
+    row.querySelector('small').textContent=
+
+      'Indice moyen : '+s+'/100';
+
+    $('suggestions').append(row);
+
+  });
+
+  openPage('result');
+
+}
+
+function inspiration(){
+
+  if(ingredients.length<2){
+
+    return toast('Ajoute au moins deux ingrédients.');
+
+  }
+
+  const a=ingredients[
+
+    Math.floor(Math.random()*ingredients.length)
+
+  ];
+
+  const b=ingredients
+
+    .filter(i=>i.id!==a.id)
+
+    .sort((x,y)=>pairScore(a,y)-pairScore(a,x))[0];
+
+  selected=[a.id,b.id];
+
+  analyseSelection();
+
+}
+
+/* =========================
+
+   SAUVEGARDE DES ACCORDS
+
+========================= */
+
+function saveCurrentPairing(){
+
+  if(!currentAnalysis)return;
+
+  const list=getSaved();
+
+  if(!list.some(x=>x.id===currentAnalysis.id)){
+
+    list.unshift(currentAnalysis);
+
+  }
+
+  if(writeStore('alchimie_pairings_v1',list)){
+
+    updateCounts();
+
+    toast('Accord enregistré.');
+
+  }
+
+}
+
+function renderSaved(){
+
+  $('savedList').replaceChildren();
+
+  getSaved().forEach(s=>savedRow(s,'local'));
+
+  getWebSaved().forEach(s=>savedRow(s,'web'));
+
+  if(!$('savedList').children.length){
+
+    $('savedList').innerHTML=
+
+      '<div class="empty">Aucune sauvegarde.</div>';
+
+  }
+
+}
+
+function savedRow(s,kind){
+
+  const d=document.createElement('div');
+
+  d.className='item';
+
+  d.innerHTML=
+
+    '<div><strong>'+
+
+    esc(kind==='web'?s.query:s.names.join(' + '))+
+
+    '</strong><small>'+
+
+    esc(s.date)+' · '+
+
+    (kind==='web'
+
+      ?'Recherche en ligne'
+
+      :'Accord local : '+s.score+'/100')+
+
+    '</small></div>';
+
+  const b=document.createElement('button');
+
+  b.className='round';
+
+  b.textContent='›';
+
+  b.setAttribute('aria-label','Ouvrir');
+
+  b.onclick=()=>{
+
+    if(kind==='web'){
+
+      webResult=s;
+
+      openPage('online');
+
+      renderWebResult();
+
+    }else{
+
+      selected=s.ingredientIds.filter(
+
+        id=>ingredients.some(i=>i.id===id)
+
+      );
+
+      if(selected.length<2){
+
+        return toast('Certains ingrédients ont été supprimés.');
+
+      }
+
+      analyseSelection();
+
+    }
+
+  };
+
+  const del=document.createElement('button');
+
+  del.className='round';
+
+  del.textContent='×';
+
+  del.setAttribute('aria-label','Supprimer la sauvegarde');
+
+  del.onclick=()=>{
+
+    if(!confirm('Supprimer cette sauvegarde ?'))return;
+
+    const key=kind==='web'
+
+      ?'alchimie_web_v3'
+
+      :'alchimie_pairings_v1';
+
+    const data=kind==='web'
+
+      ?getWebSaved()
+
+      :getSaved();
+
+    if(writeStore(key,data.filter(x=>x.id!==s.id))){
+
+      renderSaved();
+
+      updateCounts();
+
+    }
+
+  };
+
+  d.append(b,del);
+
+  $('savedList').append(d);
+
+}
+
+/* =========================
+
+   GESTION DES INGREDIENTS
+
+========================= */
+
+function renderLibrary(){
+
+  $('libraryList').replaceChildren();
+
+  const q=$('librarySearch').value.toLocaleLowerCase('fr');
+
+  ingredients
+
+    .filter(i=>i.name.toLocaleLowerCase('fr').includes(q))
+
+    .sort((a,b)=>a.name.localeCompare(b.name,'fr'))
+
+    .forEach(i=>{
+
+      $('libraryList').append(
+
+        itemRow(i,()=>editIngredient(i.id),'•••')
+
+      );
+
+    });
+
+}
+
+function showIngredient(i){
+
+  modalFocus=document.activeElement;
+
+  editingIngredientId=i?.id||null;
+
+  selectedProfiles=[...(i?.profiles||[])];
+
+  $('modalTitle').textContent=
+
+    i?'Modifier l’ingrédient':'Nouvel ingrédient';
+
+  $('ingredientName').value=i?.name||'';
+
+  $('ingredientCategory').value=i?.category||'Autre';
+
+  $('categoryOptions').innerHTML=[
+
+    ...new Set([
+
+      ...categories().slice(1),
+
+      'Spiritueux','Liqueur','Bière','Vin',
+
+      'Jus','Sirop','Herbe','Épice','Soft','Autre'
+
+    ])
+
+  ].map(c=>
+
+    '<option value="'+esc(c)+'">'
+
+  ).join('');
+
+  $('sliders').innerHTML=[
+
+    'sweet','acid','bitter','intensity'
+
+  ].map((k,n)=>{
+
+    const value=i?.[k]??(k==='intensity'?3:0);
+
+    return (
+
+      '<label class="slider" for="'+k+'">'+
+
+      '<span>'+['Sucré','Acide','Amer','Intensité'][n]+'</span>'+
+
+      '<strong id="'+k+'Value">'+value+'</strong>'+
+
+      '</label>'+
+
+      '<input id="'+k+'" type="range" '+
+
+      'min="'+(k==='intensity'?1:0)+'" max="5" '+
+
+      'value="'+value+'" '+
+
+      'oninput="$(\''+k+'Value\').textContent=this.value">'
+
+    );
+
+  }).join('');
+
+  renderProfilePicker();
+
+  $('pairingPicker').replaceChildren();
+
+  ingredients.filter(x=>x.id!==i?.id).forEach(x=>{
+
+    const l=document.createElement('label');
+
+    const c=document.createElement('input');
+
+    c.type='checkbox';
+
+    c.value=x.id;
+
+    c.checked=(i?.pairs||[]).includes(x.id);
+
+    l.append(c,document.createTextNode(' '+x.name));
+
+    $('pairingPicker').append(l);
+
+  });
+
+  $('deleteIngredientBtn').style.display=i?'block':'none';
+
+  $('ingredientModal').classList.add('active');
+
+  $('ingredientName').focus();
+
+}
+
+function newIngredient(){
+
+  showIngredient(null);
+
+}
+
+function editIngredient(id){
+
+  const i=ingredients.find(x=>x.id===id);
+
+  if(i)showIngredient(i);
+
+}
+
+function closeIngredientModal(){
+
+  $('ingredientModal').classList.remove('active');
+
+  modalFocus?.focus();
+
+}
+
+function renderProfilePicker(){
+
+  $('profilePicker').replaceChildren();
+
+  PROFILES.forEach(p=>{
+
+    const b=document.createElement('button');
+
+    b.className='chip'+(
+
+      selectedProfiles.includes(p)?' active':''
+
+    );
+
+    b.textContent=p;
+
+    b.setAttribute(
+
+      'aria-pressed',
+
+      selectedProfiles.includes(p)
+
+    );
+
+    b.onclick=()=>{
+
+      selectedProfiles=selectedProfiles.includes(p)
+
+        ?selectedProfiles.filter(x=>x!==p)
+
+        :[...selectedProfiles,p];
+
+      renderProfilePicker();
+
+    };
+
+    $('profilePicker').append(b);
+
+  });
+
+}
+
+function saveIngredient(){
+
+  const name=$('ingredientName').value.trim();
+
+  const category=$('ingredientCategory').value.trim();
+
+  if(!name||!category||!selectedProfiles.length){
+
+    return toast(
+
+      'Indique un nom, une catégorie et au moins un profil.'
+
+    );
+
+  }
+
+  if(ingredients.some(i=>
+
+    i.id!==editingIngredientId
+
+    && i.name.toLocaleLowerCase('fr')===name.toLocaleLowerCase('fr')
+
+  )){
+
+    return toast('Ce nom existe déjà.');
+
+  }
+
+  const data={
+
+    id:editingIngredientId||'custom_'+crypto.randomUUID(),
+
+    name,
+
+    category,
+
+    profiles:[...selectedProfiles],
+
+    pairs:[
+
+      ...$('pairingPicker').querySelectorAll('input:checked')
+
+    ].map(x=>x.value)
+
+  };
+
+  ['sweet','acid','bitter','intensity'].forEach(k=>{
+
+    data[k]=+$(k).value;
+
+  });
+
+  if(!validIngredient(data)){
+
+    return toast('Vérifie les champs.');
+
+  }
+
+  const next=editingIngredientId
+
+    ?ingredients.map(
+
+      i=>i.id===editingIngredientId?data:i
+
+    )
+
+    :[...ingredients,data];
+
+  if(!writeStore('alchimie_ingredients_v2',next))return;
+
+  ingredients=next;
+
+  closeIngredientModal();
+
+  renderLibrary();
+
+  updateCounts();
+
+}
+
+function deleteIngredient(){
+
+  if(!editingIngredientId)return;
+
+  if(!confirm(
+
+    'Supprimer cet ingrédient ? Les accords sauvegardés restent conservés.'
+
+  ))return;
+
+  const next=ingredients
+
+    .filter(i=>i.id!==editingIngredientId)
+
+    .map(i=>({
+
+      ...i,
+
+      pairs:i.pairs.filter(id=>id!==editingIngredientId)
+
+    }));
+
+  if(!writeStore('alchimie_ingredients_v2',next))return;
+
+  ingredients=next;
+
+  selected=selected.filter(id=>id!==editingIngredientId);
+
+  closeIngredientModal();
+
+  renderLibrary();
+
+  updateCounts();
+
+}
+
+/* =========================
+
+   ROUE LOCALE
+
+========================= */
+
+function openPairingWheel(){
+
+  if(!ingredients.length){
+
+    return toast('Ajoute un ingrédient.');
+
+  }
+
+  openPage('pairings');
+
+}
+
+function changeWheelIngredient(id){
+
+  wheelIngredientId=id;
+
+  wheelComparedId=null;
+
+  renderPairingWheel();
+
+}
+
+function renderPairingWheel(){
+
+  const a=ingredients.find(
+
+    i=>i.id===wheelIngredientId
+
+  )||ingredients[0];
+
+  if(!a){
+
+    $('flavourWheel').innerHTML='Aucun ingrédient.';
+
+    return;
+
+  }
+
+  wheelIngredientId=a.id;
+
+  $('wheelIngredientSelect').replaceChildren();
+
+  [...ingredients]
+
+    .sort((x,y)=>x.name.localeCompare(y.name,'fr'))
+
+    .forEach(i=>{
+
+      const o=document.createElement('option');
+
+      o.value=i.id;
+
+      o.textContent=i.name;
+
+      o.selected=i.id===a.id;
+
+      $('wheelIngredientSelect').append(o);
+
+    });
+
+  const matches=ingredients
+
+    .filter(i=>i.id!==a.id)
+
+    .map(i=>({i,s:pairScore(a,i)}))
+
+    .sort((x,y)=>y.s-x.s);
+
+  $('flavourWheel').innerHTML=
+
+    '<div class="ring"></div>'+
+
+    '<div class="center">'+esc(a.name.slice(0,30))+'</div>';
+
+  $('wheelRanking').replaceChildren();
+
+  matches.forEach(({i,s},index)=>{
+
+    if(index<8){
+
+      const b=document.createElement('button');
+
+      b.className='node';
+
+      const angle=(
+
+        -90+index*360/Math.min(8,matches.length)
+
+      )*Math.PI/180;
+
+      b.style.left=(50+Math.cos(angle)*39)+'%';
+
+      b.style.top=(50+Math.sin(angle)*39)+'%';
+
+      b.style.background=s>=78?'#e7eee9':'#f2e8dd';
+
+      b.innerHTML=
+
+        '<span>'+esc(i.name.slice(0,24))+
+
+        '<small>'+s+'/100</small></span>';
+
+      b.onclick=()=>{
+
+        wheelComparedId=i.id;
+
+        renderPairDetail(a,i);
+
+      };
+
+      $('flavourWheel').append(b);
+
+    }
+
+    if(index<10){
+
+      const d=itemRow(
+
+        i,
+
+        ()=>{
+
+          wheelComparedId=i.id;
+
+          renderPairDetail(a,i);
+
+        },
+
+        '›'
+
+      );
+
+      d.querySelector('small').textContent=
+
+        level(s)+' · '+s+'/100';
+
+      $('wheelRanking').append(d);
+
+    }
+
+  });
+
+  const b=ingredients.find(
+
+    i=>i.id===wheelComparedId&&i.id!==a.id
+
+  )||matches[0]?.i;
+
+  if(b){
+
+    renderPairDetail(a,b);
+
+  }else{
+
+    $('pairDetail').textContent=
+
+      'Ajoute un autre ingrédient pour comparer.';
+
+  }
+
+}
+
+function renderPairDetail(a,b){
+
+  $('pairDetail').innerHTML=
+
+    '<h3>'+esc(a.name)+' + '+esc(b.name)+'</h3>'+
+
+    '<p>'+level(pairScore(a,b))+' · '+
+
+    pairScore(a,b)+'/100</p>'+
+
+    explainPair(a,b).map(r=>
+
+      '<div class="reason">'+esc(r)+'</div>'
+
+    ).join('');
+
+  const btn=document.createElement('button');
+
+  btn.className='secondary';
+
+  btn.textContent='Placer '+b.name+' au centre';
+
+  btn.onclick=()=>changeWheelIngredient(b.id);
+
+  $('pairDetail').append(btn);
+
+}
+
+/* =========================
+
+   RECHERCHE INTERNET
+
+========================= */
+
+function updateOnlineStatus(){
+
+  if(requestController)return;
+
+  $('onlineStatus').textContent=
+
+    !navigator.onLine
+
+      ?'Tu es hors ligne. La bibliothèque reste disponible.'
+
+      :endpoint&&sessionToken
+
+        ?'Service configuré. La recherche sera vérifiée au lancement.'
+
+        :'Recherche non connectée : ouvre Réglages pour renseigner ton service et ton code.';
+
+}
+
+function onlineFromSelection(){
+
+  const list=selected.map(
+
+    id=>ingredients.find(i=>i.id===id)
+
+  ).filter(Boolean);
+
+  if(!list.length){
+
+    return toast('Sélectionne au moins un ingrédient.');
+
+  }
+
+  $('onlineQuery').value=list.map(i=>i.name).join(', ');
+
+  $('onlineMode').value='recette';
+
+  openPage('online');
+
+}
+
+function safeURL(v){
+
+  try{
+
+    const u=new URL(v);
+
+    return u.protocol==='https:'||u.protocol==='http:'
+
+      ?u.href
+
+      :null;
+
+  }catch{
+
+    return null;
+
+  }
+
+}
+
+async function research(){
+
+  if(requestController)return;
+
+  if(!endpoint||!sessionToken){
+
+    pendingWheelSearch=true;
+
+    openPage('settings');
+
+    return toast('Configure d’abord la connexion.');
+
+  }
+
+  if(!navigator.onLine){
+
+    return toast('Connexion Internet nécessaire.');
+
+  }
+
+  const query=$('onlineQuery').value.trim();
+
+  if(!query){
+
+    return toast('Indique un ingrédient.');
+
+  }
+
+  if(query.length>400){
+
+    return toast('Limite la liste à 400 caractères.');
+
+  }
+
+  requestController=new AbortController();
+
+  const controller=requestController;
+
+  const timeout=setTimeout(()=>{
+
+    controller.abort('timeout');
+
+  },175000);
+
+  $('researchButton').disabled=true;
+
+  $('cancelButton').style.display='block';
+
+  $('cancelButton').hidden=false;
+
+  $('onlineStatus').textContent=
+
+    'Recherche des sources et préparation de la réponse…';
+
+  $('onlineResult').hidden=true;
+
+  try{
+
+    const res=await fetch(
+
+      endpoint.replace(/\/$/,'')+'/research',
+
+      {
+
+        method:'POST',
+
+        headers:{
+
+          'Content-Type':'application/json',
+
+          'Authorization':'Bearer '+sessionToken
+
+        },
+
+        body:JSON.stringify({
+
+          query,
+
+          mode:$('onlineMode').value,
+
+          drinkType:$('drinkType').value,
+
+          constraints:$('constraints').value.trim()
+
+        }),
+
+        signal:controller.signal
+
+      }
+
+    );
+
+    let data;
+
+    try{
+
+      data=await res.json();
+
+    }catch{
+
+      throw Error(
+
+        'Le service ne renvoie pas une réponse valide.'
+
+      );
+
+    }
+
+    if(!res.ok){
+
+      throw Error(
+
+        data.error||'Recherche impossible ('+res.status+').'
+
+      );
+
+    }
+
+    if(!Array.isArray(data.blocks)||!data.blocks.length){
+
+      throw Error('Réponse vide.');
+
+    }
+
+    if(
+
+      $('onlineMode').value==='roue'
+
+      && !validWheel(data.wheel)
+
+    ){
+
+      throw Error(
+
+        'Le service doit être mis à jour pour construire la roue.'
+
+      );
+
+    }
+
+    webWheelPage=0;
+
+    webPairIndex=0;
+
+    webResult={
+
+      id:'web_'+crypto.randomUUID(),
+
+      query,
+
+      date:new Date().toLocaleString('fr-BE'),
+
+      blocks:data.blocks,
+
+      sources:data.sources||[],
+
+      wheel:data.wheel||null,
+
+      mode:$('onlineMode').value,
+
+      drinkType:$('drinkType').value,
+
+      constraints:$('constraints').value.trim()
+
+    };
+
+    renderWebResult();
+
+    $('onlineStatus').textContent=
+
+      'Recherche terminée. Les sources sont accessibles dans la réponse.';
+
+  }catch(e){
+
+    $('onlineStatus').textContent=
+
+      controller.signal.aborted
+
+        ?controller.signal.reason==='timeout'
+
+          ?'Délai dépassé. Réessaie.'
+
+          :'Recherche annulée.'
+
+        :e instanceof TypeError
+
+          ?'Connexion impossible : vérifie le service et ta connexion.'
+
+          :e.message;
+
+  }finally{
+
+    clearTimeout(timeout);
+
+    requestController=null;
+
+    $('researchButton').disabled=false;
+
+    $('cancelButton').style.display='none';
+
+  }
+
+}
+
+function cancelResearch(){
+
+  requestController?.abort('cancelled');
+
+}
+
+/* =========================
+
+   TEXTE ET SOURCES INTERNET
+
+========================= */
+
+function renderWebResult(){
+
+  if(!webResult)return;
+
+  $('onlineQuery').value=webResult.query;
+
+  $('onlineMode').value=webResult.mode||'roue';
+
+  $('drinkType').value=webResult.drinkType||'cocktail';
+
+  $('constraints').value=webResult.constraints||'';
+
+  $('onlineResult').hidden=false;
+
+  renderWebWheel();
+
+  $('webDate').textContent='Recherche du '+webResult.date;
+
+  $('webAnswer').replaceChildren();
+
+  for(const block of webResult.blocks){
+
+    if(typeof block.text!=='string')continue;
+
+    const p=document.createElement('p');
+
+    let cursor=0;
+
+    const chars=Array.from(block.text);
+
+    const annotations=(block.annotations||[])
+
+      .filter(a=>
+
+        a
+
+        && a.type==='url_citation'
+
+        && safeURL(a.url)
+
+        && Number.isInteger(a.start_index)
+
+        && Number.isInteger(a.end_index)
+
+        && a.start_index>=0
+
+        && a.end_index<=chars.length
+
+        && a.end_index>a.start_index
+
+      )
+
+      .sort((a,b)=>a.start_index-b.start_index);
+
+    for(const a of annotations){
+
+      if(a.start_index<cursor)continue;
+
+      p.append(
+
+        document.createTextNode(
+
+          chars.slice(cursor,a.start_index).join('')
+
+        )
+
+      );
+
+      const link=document.createElement('a');
+
+      link.href=safeURL(a.url);
+
+      link.target='_blank';
+
+      link.rel='noopener noreferrer';
+
+      link.textContent='['+(a.title||'Source')+']';
+
+      p.append(link);
+
+      cursor=a.end_index;
+
+    }
+
+    p.append(
+
+      document.createTextNode(
+
+        chars.slice(cursor).join('')
+
+      )
+
+    );
+
+    $('webAnswer').append(p);
+
+  }
+
+  $('webSources').replaceChildren();
+
+  const sources=new Map();
+
+  [
+
+    ...(webResult.sources||[]),
+
+    ...webResult.blocks.flatMap(b=>b.annotations||[])
+
+  ].forEach(s=>{
+
+    if(!s||typeof s!=='object')return;
+
+    const url=safeURL(s.url);
+
+    if(url){
+
+      sources.set(
+
+        url,
+
+        s.title||new URL(url).hostname
+
+      );
+
+    }
+
+  });
+
+  if(sources.size){
+
+    const h=document.createElement('h3');
+
+    h.textContent='Sources';
+
+    const ul=document.createElement('ul');
+
+    sources.forEach((title,url)=>{
+
+      const li=document.createElement('li');
+
+      const a=document.createElement('a');
+
+      a.href=url;
+
+      a.textContent=title;
+
+      a.target='_blank';
+
+      a.rel='noopener noreferrer';
+
+      li.append(a);
+
+      ul.append(li);
+
+    });
+
+    $('webSources').append(h,ul);
+
+  }
+
+}
+
+function saveWebResult(){
+
+  if(!webResult)return;
+
+  const saved=getWebSaved();
+
+  if(!saved.some(x=>x.id===webResult.id)){
+
+    saved.unshift(webResult);
+
+  }
+
+  if(writeStore('alchimie_web_v3',saved)){
+
+    toast('Recherche enregistrée.');
+
+    updateCounts();
+
+  }
+
+}
+
+function addQueryIngredient(){
+
+  newIngredient();
+
+  $('ingredientName').value=
+
+    $('onlineQuery').value.includes(',')
+
+      ?''
+
+      :$('onlineQuery').value.slice(0,120);
+
+}
+
+/* =========================
+
+   CONNEXION AU SERVICE
+
+========================= */
+
+function saveSettings(){
+
+  const value=$('endpoint').value.trim().replace(/\/$/,'');
+
+  try{
+
+    const u=new URL(value);
+
+    if(
+
+      u.protocol!=='https:'
+
+      ||u.username
+
+      ||u.password
+
+      ||u.search
+
+      ||u.hash
+
+      ||u.pathname!=='/'
+
+    ){
+
+      throw Error();
+
+    }
+
+  }catch{
+
+    return toast(
+
+      'Indique l’adresse HTTPS du service, sans chemin ni clé.'
+
+    );
+
+  }
+
+  const token=$('accessToken').value.trim();
+
+  if(!token||token.startsWith('sk-')){
+
+    return toast(
+
+      'Indique ton code Alchimie, pas une clé OpenAI.'
+
+    );
+
+  }
+
+  try{
+
+    localStorage.setItem('alchimie_endpoint_v3',value);
+
+  }catch{
+
+    return toast('Impossible de conserver l’adresse.');
+
+  }
+
+  endpoint=value;
+
+  sessionToken=token;
+
+  updateCounts();
+
+  openPage('online');
+
+  toast('Connexion configurée.');
+
+  if(pendingWheelSearch){
+
+    pendingWheelSearch=false;
+
+    research();
+
+  }
+
+}
+
+function disconnect(){
+
+  sessionToken='';
+
+  $('accessToken').value='';
+
+  updateCounts();
+
+  toast('Session déconnectée.');
+
+}
+
+/* =========================
+
+   EXPORT ET RESTAURATION
+
+========================= */
+
+function exportData(){
+
+  const data={
+
+    format:'alchimie-backup',
+
+    version:3,
+
+    ingredients,
+
+    pairings:getSaved(),
+
+    researches:getWebSaved()
+
+  };
+
+  const url=URL.createObjectURL(
+
+    new Blob(
+
+      [JSON.stringify(data,null,2)],
+
+      {type:'application/json'}
+
+    )
+
+  );
+
+  const a=document.createElement('a');
+
+  a.href=url;
+
+  a.download=
+
+    'alchimie-sauvegarde-'+
+
+    new Date().toISOString().slice(0,10)+
+
+    '.json';
+
+  a.click();
+
+  setTimeout(()=>{
+
+    URL.revokeObjectURL(url);
+
+  },1000);
+
+}
+
+function validSaved(s){
+
+  return s
+
+    &&typeof s.id==='string'
+
+    &&Array.isArray(s.names)
+
+    &&s.names.every(x=>typeof x==='string')
+
+    &&Array.isArray(s.ingredientIds)
+
+    &&s.ingredientIds.every(x=>typeof x==='string')
+
+    &&Number.isFinite(s.score)
+
+    &&typeof s.date==='string';
+
+}
+
+function validWeb(s){
+
+  return s
+
+    &&typeof s.id==='string'
+
+    &&typeof s.query==='string'
+
+    &&typeof s.date==='string'
+
+    &&Array.isArray(s.blocks)
+
+    &&s.blocks.every(b=>
+
+      typeof b.text==='string'
+
+      &&Array.isArray(b.annotations)
+
+      &&b.annotations.every(a=>a&&typeof a==='object')
+
+    )
+
+    &&Array.isArray(s.sources)
+
+    &&s.sources.every(a=>a&&typeof a==='object')
+
+    &&(!s.wheel||validWheel(s.wheel));
+
+}
+
+async function importData(input){
+
+  const file=input.files[0];
+
+  if(!file)return;
+
+  try{
+
+    if(file.size>8000000){
+
+      throw Error('Fichier trop volumineux.');
+
+    }
+
+    const d=JSON.parse(await file.text());
+
+    if(
+
+      d.format!=='alchimie-backup'
+
+      ||d.version!==3
+
+      ||!Array.isArray(d.ingredients)
+
+      ||!d.ingredients.every(validIngredient)
+
+      ||new Set(d.ingredients.map(i=>i.id)).size!==d.ingredients.length
+
+      ||!Array.isArray(d.pairings)
+
+      ||!d.pairings.every(validSaved)
+
+      ||!Array.isArray(d.researches)
+
+      ||!d.researches.every(validWeb)
+
+    ){
+
+      throw Error('Sauvegarde Alchimie invalide.');
+
+    }
+
+    if(!confirm(
+
+      'Remplacer les ingrédients, accords et recherches de cet appareil ?'
+
+    ))return;
+
+    const keys=[
+
+      'alchimie_ingredients_v2',
+
+      'alchimie_pairings_v1',
+
+      'alchimie_web_v3'
+
+    ];
+
+    const before=keys.map(
+
+      k=>localStorage.getItem(k)
+
+    );
+
+    try{
+
+      [d.ingredients,d.pairings,d.researches].forEach((v,n)=>{
+
+        localStorage.setItem(keys[n],JSON.stringify(v));
+
+      });
+
+    }catch(e){
+
+      keys.forEach((k,n)=>{
+
+        try{
+
+          if(before[n]===null){
+
+            localStorage.removeItem(k);
+
+          }else{
+
+            localStorage.setItem(k,before[n]);
+
+          }
+
+        }catch{}
+
+      });
+
+      throw Error(
+
+        'Stockage insuffisant pour restaurer.'
+
+      );
+
+    }
+
+    ingredients=d.ingredients;
+
+    selected=[];
+
+    currentAnalysis=null;
+
+    webResult=null;
+
+    updateCounts();
+
+    toast('Sauvegarde restaurée.');
+
+  }catch(e){
+
+    toast(e.message);
+
+  }finally{
+
+    input.value='';
+
+  }
+
+}
+
+/* =========================
+
+   ROUE DES ACCORDS INTERNET
+
+========================= */
+
+function launchWheelSearch(){
+
+  const q=$('homeQuery').value.trim();
+
+  if(!q){
+
+    return toast(
+
+      'Entre le nom d’un cocktail, alcool ou liqueur.'
+
+    );
+
+  }
+
+  $('onlineQuery').value=q;
+
+  $('onlineMode').value='roue';
+
+  openPage('online');
+
+  research();
+
+}
+
+function validWheel(w){
+
+  return w
+
+    &&typeof w.name==='string'
+
+    &&typeof w.identity==='string'
+
+    &&typeof w.clarification==='string'
+
+    &&Array.isArray(w.pairings)
+
+    &&w.pairings.length<=16
+
+    &&w.pairings.every(p=>
+
+      p
+
+      &&typeof p.name==='string'
+
+      &&typeof p.category==='string'
+
+      &&typeof p.reason==='string'
+
+      &&typeof p.use==='string'
+
+      &&['documente','piste'].includes(p.evidence)
+
+      &&Array.isArray(p.sources)
+
+      &&p.sources.length
+
+      &&p.sources.every(s=>
+
+        s
+
+        &&safeURL(s.url)
+
+        &&typeof s.title==='string'
+
+      )
+
+    );
+
+}
+
+function renderWebWheel(){
+
+  const w=webResult?.wheel;
+
+  $('webWheelSection').hidden=!validWheel(w);
+
+  if(!validWheel(w))return;
+
+  $('webWheelTitle').textContent=w.name;
+
+  $('webWheelIdentity').textContent=w.identity;
+
+  $('webFlavourWheel').replaceChildren();
+
+  $('webWheelPager').replaceChildren();
+
+  $('webWheelRanking').replaceChildren();
+
+  if(!w.pairings.length){
+
+    $('webPairDetail').textContent=
+
+      w.clarification||
+
+      'Précise le nom recherché pour construire une roue.';
+
+    return;
+
+  }
+
+  const pageCount=Math.ceil(w.pairings.length/8);
+
+  webWheelPage=Math.min(
+
+    Math.max(0,webWheelPage),
+
+    pageCount-1
+
+  );
+
+  const start=webWheelPage*8;
+
+  const visible=w.pairings.slice(start,start+8);
+
+  const ring=document.createElement('div');
+
+  ring.className='ring';
+
+  const center=document.createElement('div');
+
+  center.className='center';
+
+  center.textContent=w.name;
+
+  center.style.fontSize=
+
+    w.name.length>24?'10px':'12px';
+
+  $('webFlavourWheel').append(ring,center);
+
+  visible.forEach((p,index)=>{
+
+    const b=document.createElement('button');
+
+    b.className='node';
+
+    b.style.background=
+
+      p.evidence==='documente'?'#e7eee9':'#f2e8dd';
+
+    const angle=(
+
+      -90+index*360/visible.length
+
+    )*Math.PI/180;
+
+    b.style.left=(50+Math.cos(angle)*39)+'%';
+
+    b.style.top=(50+Math.sin(angle)*39)+'%';
+
+    b.textContent=p.name.length>26
+
+      ?p.name.slice(0,24)+'…'
+
+      :p.name;
+
+    b.setAttribute(
+
+      'aria-label',
+
+      p.name+' : '+
+
+      (p.evidence==='documente'
+
+        ?'accord documenté'
+
+        :'piste à tester')
+
+    );
+
+    b.onclick=()=>{
+
+      webPairIndex=start+index;
+
+      renderWebPairDetail();
+
+    };
+
+    $('webFlavourWheel').append(b);
+
+  });
+
+  if(pageCount>1){
+
+    for(let n=0;n<pageCount;n++){
+
+      const b=document.createElement('button');
+
+      b.className='secondary';
+
+      b.textContent=
+
+        'Accords '+(n*8+1)+'–'+
+
+        Math.min(n*8+8,w.pairings.length);
+
+      b.setAttribute(
+
+        'aria-pressed',
+
+        n===webWheelPage
+
+      );
+
+      b.onclick=()=>{
+
+        webWheelPage=n;
+
+        webPairIndex=n*8;
+
+        renderWebWheel();
+
+      };
+
+      $('webWheelPager').append(b);
+
+    }
+
+  }
+
+  w.pairings.forEach((p,index)=>{
+
+    const row=document.createElement('button');
+
+    row.className='item';
+
+    row.style.textAlign='left';
+
+    row.innerHTML=
+
+      '<div><strong>'+esc(p.name)+'</strong>'+
+
+      '<small>'+esc(p.category)+' · '+
+
+      (p.evidence==='documente'
+
+        ?'Accord documenté'
+
+        :'Piste à tester')+
+
+      '</small></div><span>›</span>';
+
+    row.onclick=()=>{
+
+      webPairIndex=index;
+
+      webWheelPage=Math.floor(index/8);
+
+      renderWebWheel();
+
+      $('webPairDetail').scrollIntoView({
+
+        behavior:'smooth',
+
+        block:'start'
+
+      });
+
+    };
+
+    $('webWheelRanking').append(row);
+
+  });
+
+  webPairIndex=Math.min(
+
+    Math.max(0,webPairIndex),
+
+    w.pairings.length-1
+
+  );
+
+  renderWebPairDetail();
+
+}
+
+function renderWebPairDetail(){
+
+  const w=webResult?.wheel;
+
+  const p=w?.pairings[webPairIndex];
+
+  if(!p)return;
+
+  const box=$('webPairDetail');
+
+  box.replaceChildren();
+
+  const title=document.createElement('h3');
+
+  title.textContent=w.name+' + '+p.name;
+
+  const badge=document.createElement('span');
+
+  badge.className='tag';
+
+  badge.textContent=p.evidence==='documente'
+
+    ?'Accord documenté'
+
+    :'Piste aromatique à tester';
+
+  const reason=document.createElement('p');
+
+  reason.textContent=p.reason;
+
+  const use=document.createElement('p');
+
+  use.textContent=p.use;
+
+  const refs=document.createElement('div');
+
+  refs.className='sources';
+
+  p.sources.forEach(s=>{
+
+    const a=document.createElement('a');
+
+    a.href=safeURL(s.url);
+
+    a.target='_blank';
+
+    a.rel='noopener noreferrer';
+
+    a.textContent=s.title;
+
+    const line=document.createElement('p');
+
+    line.append(a);
+
+    refs.append(line);
+
+  });
+
+  const add=document.createElement('button');
+
+  add.className='secondary';
+
+  add.textContent=
+
+    '+ Ajouter '+p.name+' à ma bibliothèque';
+
+  add.onclick=()=>{
+
+    const existing=ingredients.find(i=>
+
+      i.name.toLocaleLowerCase('fr')
+
+      ===p.name.toLocaleLowerCase('fr')
+
+    );
+
+    if(existing){
+
+      editIngredient(existing.id);
+
+      return;
+
+    }
+
+    newIngredient();
+
+    $('ingredientName').value=p.name;
+
+    $('ingredientCategory').value=p.category;
+
+  };
+
+  const explore=document.createElement('button');
+
+  explore.className='secondary';
+
+  explore.textContent=
+
+    '◎ Chercher les accords de '+p.name;
+
+  explore.onclick=()=>{
+
+    $('onlineQuery').value=p.name;
+
+    $('onlineMode').value='roue';
+
+    research();
+
+  };
+
+  box.append(
+
+    title,badge,reason,use,refs,add,explore
+
+  );
+
+}
+
+/* =========================
+
+   RACCOURCIS ET ACCESSIBILITE
+
+========================= */
+
+$('homeQuery').addEventListener('keydown',e=>{
+
+  if(e.key==='Enter'){
+
+    e.preventDefault();
+
+    launchWheelSearch();
+
+  }
+
+});
+
+$('onlineQuery').addEventListener('keydown',e=>{
+
+  if(e.key==='Enter'){
+
+    e.preventDefault();
+
+    research();
+
+  }
+
+});
+
+document.addEventListener('keydown',e=>{
+
+  if(
+
+    !$('ingredientModal').classList.contains('active')
+
+  )return;
+
+  if(e.key==='Escape'){
+
+    closeIngredientModal();
+
+  }
+
+  if(e.key==='Tab'){
+
+    const focus=[
+
+      ...$('ingredientModal').querySelectorAll('button,input')
+
+    ].filter(x=>x.offsetParent!==null);
+
+    const first=focus[0];
+
+    const last=focus.at(-1);
+
+    if(e.shiftKey&&document.activeElement===first){
+
+      e.preventDefault();
+
+      last.focus();
+
+    }else if(
+
+      !e.shiftKey&&document.activeElement===last
+
+    ){
+
+      e.preventDefault();
+
+      first.focus();
+
+    }
+
+  }
+
+});
+
+window.addEventListener('online',updateOnlineStatus);
+
+window.addEventListener('offline',updateOnlineStatus);
+
+/* =========================
+
+   INITIALISATION
+
+========================= */
+
+updateCounts();
+
+renderCategories();
+
+renderIngredients();
+
+</script>
+
+</body>
+
+</html>
